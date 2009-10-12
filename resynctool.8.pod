@@ -1,0 +1,116 @@
+=head1 NAME
+
+resynctool - Manual resync tool for TRI-D event-based HOTP tokens
+
+=head1 SYNOPSIS
+
+resynctool -1 I<otp1> -2 I<otp2> [options]
+
+=over 4
+
+=item B<-1> I<otp1>		first OTP I<otp1>
+
+=item B<-2> I<otp2>		second OTP I<otp2>
+
+=item B<-u> I<user>		emit state for user I<user>
+
+=item B<-k> I<key>		use key I<key>
+
+=item B<-c> I<challenge>	set initial counter value from I<challenge>
+
+=item B<-i> I<counter>	initial I<counter> value to test
+
+=item B<-f> I<counter>	final I<counter> value to test
+
+=back
+
+=head1 DESCRIPTION
+
+Event-based tokens generate an OTP by using an B<event counter> as input
+to the OTP algorithm.  The event counter is incremented on each use of
+the token.
+
+Unlike time-based tokens, event-based tokens can get out of sync with the
+server due to network issues or misuse.  The I<rwindow_size> setting in
+F</etc/otpd.conf> is used to search over a larger range of event counter
+values (starting from the last known good counter) than normal, and can
+be used to overcome sync problems to some extent, but it is not advised
+to set it very large as it creates more work for the server, and therefore
+with "severe" sync problems the user may become effectively locked out.
+
+When using LDAP with B<otpd>, a user-specific I<rwindow_size> setting
+can be made, which allows the user to self-resync.  The TRI-D Systems
+Professional Edition software also comes with a web application that
+administrators or users can use to make this job easy.
+
+When using files with B<otpd>, user-specific settings are not available,
+and therefore B<resynctool> is provided.  Some sites may want to use it
+with LDAP as well.
+
+To use B<resynctool>, give the username, token key and two consecutive
+freshly generated OTPs.  B<resynctool> will output the state data which
+will resync the user.  Suggested usage (wrap this in a script):
+
+  resynctool -u USER -k ... -1 123456 -2 123456 >/dev/null &&
+  resynctool -u USER -k ... -1 123456 -2 123456 >/etc/otpstate/USER
+
+B<resynctool> is designed to work with TRI-D event-based HOTP tokens,
+however it will work with any event-based HOTP token which uses a counter
+that increments by one for each subsequent use of the token.  (RFC 4226
+does not specify how the counter should be derived.)
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-1> I<otp1>
+
+The first of two consecutive OTPs.
+
+=item B<-2> I<otp2>
+
+The second of two consecutive OTPs.
+
+=item B<-u> I<user>
+
+The user that holds the token; it is necessary for the state data.
+If not provided, a generic value will be used which must then be
+replaced with the actual username, otherwise B<otpd> will not
+consider the state to be valid.
+
+=item B<-k> I<key>
+
+The token secret.
+
+=item B<-c> I<challenge>
+
+The last known good challenge (hex counter) value.  It is an 8
+octet value (16 hex digits), stored as the third field of v5
+state.  Using this option tells B<resynctool> to begin searching
+for candidate event counters at this value instead of at 0.  This
+saves work testing event counters that cannot possibly be valid.
+To extract the challenge value (work this into your wrapper script):
+
+  cut -d: -f3 /etc/otpstate/USER
+
+=item B<-i> I<counter>
+
+This is an alternative to the B<-c> option.  Instead of a hex
+value, this option takes a decimal counter.
+
+=item B<-f> I<counter>
+
+The final (decimal) counter value to test.  By default, B<resynctool>
+will test 65536 values before giving up.  If the first character of
+I<counter> is C<+> (plus), instead of using I<counter> as an absolute
+value it will be added to the initial value.
+
+=back
+
+=head1 SEE ALSO
+
+otpd(8), lsmd(8), RFC 4226
+
+=head1 URL
+
+L<http://www.tri-dsystems.com/>

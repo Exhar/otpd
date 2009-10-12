@@ -1,0 +1,80 @@
+=head1 NAME
+
+otpd - One-Time Password authentication daemon
+
+=head1 SYNOPSIS
+
+otpd [options]
+
+=over 4
+
+=item B<-c> I<file>	use config file I<file>
+
+=item B<-u> I<user>	run as user I<user>
+
+=item B<-p> I<rp>	listen to plugins at rendezvous point I<rp>
+
+=item B<-f>		run in foreground
+
+=item B<-d> I<level>	set log level to I<level>
+
+=item B<-D>		set log level to max
+
+=back
+
+=head1 DESCRIPTION
+
+B<otpd> is part of a suite of software for authenticating users with
+handheld OTP tokens.  An authentication server handles the
+authentication protocol (such as RADIUS), and via a plugin, passes the
+username and OTP to B<otpd>, which then determines if the OTP is valid.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-c> I<file>
+
+The config file to use.  The default is F</etc/otpd.conf>.
+
+=item B<-u> I<user>
+
+Change uid to I<user> at startup.
+
+=item B<-p> I<rp>
+
+Where to listen for plugin connections.
+The default is F</var/run/otpd/socket>.
+
+=item B<-f>
+
+Run in the foreground.  The default is to become a daemon.
+
+=item B<-d> I<level>
+
+Log diagnostics up to level I<level>.  Use syslog priority levels emerg
+through debug, and the additional levels debug1 through debug8 (useful
+for source code debugging).  The debug1 through debug8 levels are
+logged at syslog debug priority.  The default is debug, with filtering
+to a more reasonable verbosity (info or notice) expected to be done in
+syslog.conf.
+
+=item B<-D>
+
+Equivalent to B<-f -d debug8>.
+
+=back
+
+Command line options override config file settings.
+
+=head1 FILES
+
+F</etc/otpd.conf>, F</etc/otppasswd>
+
+=head1 SEE ALSO
+
+otppasswd(5), gsmd(8), README
+
+=head1 URL
+
+L<http://www.tri-dsystems.com/>

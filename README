@@ -1,0 +1,334 @@
+0.  INTRODUCTION
+
+    Thank you for using otpd.  The latest version can always be found at
+                    <http://www.tri-dsystems.com/>
+
+    Please see the file README.LICENSE for licensing terms.
+
+    otpd is part of a suite of software for authenticating users with
+    handheld OTP tokens.  There are five components:
+
+    a.  An authentication server.  This is provided by you.  Examples
+        are FreeRADIUS, unix daemons that use PAM, a krb5 KDC, etc.
+    b.  A plugin for your auth server, that talks to otpd.  You can
+        download plugins from the TRI-D Systems web site, or write
+        your own.  Your authentication server software vendor might
+        also supply plugins for otpd.
+  * c.  This software, otpd, which does the actual OTP validation.
+    d.  A global state manager, gsmd, used in multi-server deployments
+        to coordinate and guarantee globally consistent state.
+    e.  An optional LDAP directory server.
+
+    Other vendors' OTP authentication software rolls all of the above
+    into a single piece of software.  TRI-D Systems has decided to
+    break it into component pieces to allow for higher integration,
+    higher scalability, and higher security assurance.
+
+    + Integration:  By tying directly into the authentication servers
+      you already use, we work with whatever access methods you already
+      have in place.  Auditing is also through your existing servers.
+      And since your IT staff already knows how to manage your existing
+      servers, additional support costs are minimized.
+
+    + Scalability:  This is acheived by separating the state manager
+      and otpd functions.  In the TRI-D Systems design, otpd runs on
+      the same machine as the authentication server, but the state
+      manager can run elsewhere.  The authentication server and otpd
+      have to do most of the work of authenticating a user, and can
+      operate standalone, i.e. without knowledge of other auth servers
+      or otpds.  The state associated with OTP, however, is a very
+      lightweight piece, and it must be globally consistent.  Every
+      otpd has to see the same state in order to prevent replay
+      attacks.  By making the lightweight state manager a separate
+      component, the system as a whole scales better.  Our competitors
+      do the heavy lifting of OTP verification and state management in
+      the same server, thus decreasing their scalability relative to
+      ours.
+
+    + Assurance:  The component model means that the software we
+      provide is small, and of consistent high quality.  It also allows
+      us to open source most of the code, since restricted source
+      components can be isolated.  We believe there is a fundamental
+      problem with today's OTP vendors: customers must place blind
+      trust in the system component that provides a trust service to
+      the rest of the system!  (And it's not just the software; some
+      vendors will not disclose how their token works even in principle,
+      not even under NDA.  How can one trust such products?)  All the
+      core parts of our software are open source, and all other parts
+      are source-available.
+
+    In addition to providing these benefits, it all comes at a lower
+    cost than the competition.  In fact, the software is completely
+    free (both free as in beer and free as in freedom) if you don't
+    need or want any of the optional "enterprise" features.
+
+
+1.  INSTALLATION
+
+    otpd uses the standard CMMI (configure, make, make install)
+    process.  Run './configure --help' for brief information on
+    otpd-specific options.
+
+    Post-install, you'll need to create the otpd socket directory,
+    /var/run/otpd by default, which should have permissions such that
+    your authentication server (via a plugin) can access it.  Any
+    process that can access this directory can ask otpd to verify an
+    OTP!  This directory is not created by the install process because
+    on newer Solaris /var/run is on tmpfs; the directory will not
+    survive a reboot.
+
+    You'll also need to create /etc/otppasswd and make sure it is only
+    readable by the owner (u+r or u+w).  otpd verifies the file permissions
+    at startup.
+
+    Lastly, you'll need to create the /etc/otpstate directory, where
+    per-user token [transient] state information is stored.
+
+
+2.  TESTING
+
+    A test program, otpauth, is provided to assist with testing of
+    otpd without requiring any additional authentication infrastructure.
+    It also serves as a [trivial] example of how plugins communicate
+    with otpd.
+
+
+3.  SUPPORTED TOKENS
+
+    Of course, otpd fully supports all TRI-D tokens.
+
+    Also, CRYPTOCard tokens are fully supported, however no support is
+    available for token programming (so you can program known keys) or
+    key extraction from the CRYPTOCard database (so you can extract
+    already generated keys).
+
+    Also, support is available for a generic event-synchronous HOTP
+    token, and a generic challenge/response X9.9 token.  The generic
+    X9.9 token should work with any vendor's X9.9 challenge/response
+    token, with the same caveat as for CRYPTOCard: you need to have
+    knowledge of the token's key.
+
+
+4.  TOKEN OPERATION
+
+    In the very old days, the server would present a challenge to the
+    user, which the user would then enter into their token, and give
+    the server the response.  We call this async mode.  This is
+    "klunky" by modern standards of usability, and for X9.9 tokens is
+    actually unsafe given that DES is weak (see section 3).
+
+    Luckily, all tokens available today support a synchronous mode
+    which lets the user skip the part where they enter the challenge.
+    In this mode, the token and the server generate a "next challenge"
+    which is derived from an event and/or time counter and is
+    implicit.  Besides offering better security, this mode also has the
+    advantage of giving a much better user experience.
+
+    For some tokens, the token can display the synchronous challenge.
+    The idea here is that the server would still present a challenge to
+    the user, but the user wouldn't have to enter it--they'd just have
+    to verify it matches.  Then they can safely just press some
+    function key to obtain the response.  From a security perspective,
+    this is no better than pure async mode, since an attacker can still
+    observe the plaintext/ciphertext pair.
+
+    So when operating in this mixed async-sync mode, instead of
+    presenting the synchronous challenge, the server ALWAYS displays a
+    random challenge.  Instead of verifying that the challenge matches
+    the token display, the user should just skip past the token
+    challenge display to obtain the response.  This might be confusing;
+    you will need to train users.  Even with training, they will
+    forget.  Be warned!  This mixed mode is useless and stupid.  If you
+    can disable token support for this, do so.
+
+    For other tokens, the token does not display the synchronous
+    challenge--only the response is displayed.  This is a bit easier on
+    the user; they won't be confused as to which number to enter for
+    the response.  I can't recommend this mode highly enough.  With
+    tokens like this, you should configure the server to likewise not
+    present a challenge (this is the default).  This appears to the
+    user to be close to a normal password authentication.
+
+    It's worth repeating that async mode is vastly inferior to either
+    sync mode, and the mixed async-sync mode is vastly inferior to the
+    pure sync mode.  In addition to the shielding of the plaintext, and
+    ease of use, another advantage of sync mode is that it supports
+    authentication methods where a challenge cannot be presented to the
+    user, e.g. PPTP without EAP.
+
+    In sync mode, there are two ways to generate the implied challenge;
+    either event or time based.  "Events" are token operations--each
+    time the token is activated an event counter advances.
+
+    Event synchronous tokens have the problem that if users play with
+    the token as a toy (say, to generate winning lottery numbers), the
+    server has no way to know this and so it has a different idea of
+    the counter value.  Since there are typically only 1-10 million
+    passcodes (6-7 digit decimal display), the server cannot simply
+    test "many" passcodes in an attempt to discover the event counter
+    value, because a guessing attack is trivial with such a small
+    response space.  Our solution for this is to require 2 consecutive
+    passcodes after a limited number of failed attempts.  (See otp.conf.)
+
+    Event synchronous tokens are also more susceptible to sharing.
+    Users can give out their passcodes for use at any time in the
+    future.
+
+    Also, a not-uncommon practice with event synchronous tokens is to
+    generate a list of passcodes and carry that list around, instead of
+    the token.  (Generally because the tokens are physically
+    inconvenient to carry and use.)
+
+    Time synchronous tokens solve the event sync problem quite nicely
+    by eliminating the user from the equation.  As PEBKAC is generally
+    the worst kind of problem, and the most difficult to solve, this is
+    clearly better than event synchronous.
+
+    But they introduce a new problem, that the timer interval (normally
+    one minute) limits login rate.  System and network administrators
+    are especially hit by this one, but even "normal" users will
+    complain about this.
+
+    TRI-D tokens are time+event synchronous; for each time interval we
+    produce multiple event-based passcodes.
+
+
+5.  STRONG WARNING SECTION
+
+    ANSI X9.9 has been withdrawn as a standard, due to the weakness
+    of DES.  An attacker can learn the token's secret by observing
+    two challenge/response pairs.  See ANSI document X9 TG-24-1999,
+    <http://www.x9.org/docs/TG24_1999.pdf>.
+
+    For X9.9 tokens, the obvious fix is to not issue a challenge; the
+    attacker will not have access to the plaintext.  This is possible
+    since all commercially available X9.9 tokens support a synchronous
+    mode (the last holdout was the PassGo/Axent Defender Handheld, a
+    re-re-re-remake of the Digital Pathways SNK/4, and which finally
+    died ca. 2005).
+
+    However, almost all X9.9 tokens support challenge/response (what we
+    call asynchronous) mode, required to resync the token if the event
+    sync is lost, in addition to synchronous mode.
+
+    To protect against key compromise, all TRI-D supplied plugins
+    disable async mode by default.  Additionally, the default site
+    transform (see section 4, below) in otpd effectively disables
+    async mode, even if enabled in a plugin.
+
+    In practice, async mode authentication is a poor user experience
+    and should be rare.
+
+    TRI-D tokens use HOTP.
+
+
+6.  SITE-SPECIFIC CHALLENGE TRANSFORM
+
+    Since the normal mode of operation will be sync mode, we really
+    only have async mode support for "last resort" user resync of the
+    event counter.  (For "normal" resync see the rwindow description in
+    otp.conf.)
+
+    Note that only some tokens support "user" sync/resync.  For others,
+    admin intervention is required for resync.
+
+    Since pure challenge/response with X9.9 is unsafe, we came up with
+    the concept of the "site-specific challenge transform".  For the
+    user, this means that instead of entering the challenge as
+    presented to them, they enter something /based on/ the challenge.
+    For example, a simple transform would be to enter the challenge
+    backwards; if the server presents "123456" the user enters
+    "654321".  This has the effect that an observer does not have
+    access to the plaintext.
+
+    This is security through obscurity, and is not really "safe", but
+    for an outsider it may present at least some barrier.  Even though
+    it presents no advantage in the face of a /determined/ attacker, we
+    recommend using it.  It may stop a more opportunistic attacker and
+    isn't difficult to use.
+
+    otpd logs each time a user authenticates via async mode, so we
+    recommend a log scanner which alerts you to this.  Tokens should be
+    reprogrammed when users authenticate via async mode.
+
+    site.c implements the site-specific challenge transform.  The
+    default transform is to append the first two characters of the
+    username to the challenge.  This effectively disables async mode;
+    the user will generally not be able to enter this into their
+    token.
+
+
+7.  STATE
+
+    Synchronous (implied challenge) OTP authentication requires that all
+    authentication servers have a consistent view of token state, to avoid
+    replay attacks.  While this can be simply achieved by having only a
+    single OTP authentication server (which other servers could proxy to
+    via, say, RADIUS), this creates a single point of failure, which is
+    generally unacceptable in today's critical computing environments.
+    Additionally, in very large environments, a single server may not
+    be able to handle the load.
+
+    TRI-D Systems addresses this with a 2-part system: local state
+    management integrated into otpd, and a global state management
+    daemon (gsmd), with which otpd communicates.  For single server
+    deployments, gsmd is not required.
+
+
+8.  GLOBAL STATE MANAGEMENT DAEMON (gsmd)
+
+    gsmd does ... global state management.  It ensures that all
+    authentication servers see the same view of state at all times, by
+    being the single canonical source of state data.
+
+
+9.  STATE FORMAT
+
+    There is one state file per user, with the same name as the user.
+    The default location for state files is in /etc/otpstate.  For most
+    filesystems, this probably doesn't scale well, beyond a few ten
+    thousands of users.
+
+    The format is:
+      ver:user:chal:csd:rd:failcount:authtime:mincardtime:
+    for example (note some fields can be empty):
+      5:bob:12345678:::0:0:0:
+
+    Note that the trailing colon is required.
+
+          ver: 5
+         user: this is a sanity check field (matches filename)
+         chal: the previous synchronous challenge (for event synchronous modes)
+          csd: card-specific data
+           rd: rwindow (softfail) data
+    failcount: 0 if the last auth was successful,
+               number of consecutive failures if unsucessful
+     authtime: the last time the user authenticated (success or failure)
+  mincardtime: the last time (card clock) the user authenticated successfully
+
+    The challenge and the csd fields comprise the state proper.  The
+    other fields are used for password guessing prevention, user resync
+    (for event synchronous modes), and null state initialization.
+
+    If the state file does not exist, the action taken depends on the token.
+
+    For TRI-D, the state will be initialized by the module itself.
+    DO NOT create any initial state data yourself.  (We call this
+    condition null state.)  For the first authentication, users must
+    give two consecutive passcodes.
+
+    For CRYPTOCard, the user must authenticate asynchronously to
+    initalize the state.  If your CRYPTOCard tokens aren't setup for
+    async auth, or if you disallow it in the server config, then you'll
+    (obviously) need to initialize the state manually when you issue
+    tokens.  Just create a state file with a blank challenge field.
+
+    To reset locked-out (in hardfail, or too far out of event sync for
+    rwindow mode to work) CRYPTOCard users manually, set the failcount
+    field to 0.  The challenge field may also need to be reset if the
+    user is too far out of sync.  Note that you must lock the state
+    file before changing it!  A utility will be provided for this in
+    the future.
+
+    The same notes (as for CRYPTOCard) apply for the generic hotp and
+    x9.9 token support.

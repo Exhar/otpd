@@ -1,0 +1,231 @@
+#
+# otp.schema (for OpenLDAP)
+# $Revision: #1 $
+#
+# 1.3.6.1.4.1.26782  TRI-D Systems, Inc.
+#
+# OID Base is 1.3.6.1.4.1.26782.2
+# (see http://www.zytrax.com/books/ldap/apa/oid.html which recommends
+#  1.3.6.1.4.1.26782.1 - assign to SNMP objects
+#  1.3.6.1.4.1.26782.2 - assign to LDAP objects
+#  1.3.6.1.4.1.26782.2.1 - assign to LDAP syntaxes
+#  1.3.6.1.4.1.26782.2.2 - assign to LDAP matchingrules
+#  1.3.6.1.4.1.26782.2.3 - assign to LDAP attributes
+#  1.3.6.1.4.1.26782.2.4 - assign to LDAP objectclasses
+#  1.3.6.1.4.1.26782.2.5 - assign to LDAP supported features
+#  1.3.6.1.4.1.26782.2.9 - assign to LDAP protocol mechanisms
+#  1.3.6.1.4.1.26782.2.10 - assign to LDAP controls
+#  1.3.6.1.4.1.26782.2.11 - assign to LDAP extended operations
+# )
+#
+
+# for readability
+objectIdentifier TRID 1.3.6.1.4.1.26782
+# OpenLDAP does not know syntaxes (RFC 2252 par. 4.3.2) by name
+objectIdentifier DirectoryString 1.3.6.1.4.1.1466.115.121.1.15
+objectIdentifier IA5String       1.3.6.1.4.1.1466.115.121.1.26
+objectIdentifier INTEGER         1.3.6.1.4.1.1466.115.121.1.27
+
+#
+# attributes
+#
+
+attributetype ( TRID:2.3.1 NAME 'otpVendor'
+  DESC 'OTP token vendor'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.2 NAME 'otpModel'
+  DESC 'OTP token model number'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.3 NAME 'otpSerial'
+  DESC 'OTP token serial number'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.4.1 NAME 'otpKey1'
+  DESC 'OTP token key 1'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.4.2 NAME 'otpKey2'
+  DESC 'OTP token key 2'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.4.3 NAME 'otpKey3'
+  DESC 'OTP token key 3'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+# initial PIN, only valid once
+attributetype ( TRID:2.3.5 NAME 'otpIPIN'
+  DESC 'OTP token Initial PIN'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+# soft PIN, empty if key encoding is 'pin'
+attributetype ( TRID:2.3.6 NAME 'otpPIN'
+  DESC 'OTP token PIN'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+# alternate soft PIN
+attributetype ( TRID:2.3.7 NAME 'otpDuressPIN'
+  DESC 'OTP token duress PIN'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+# to bound nullstate (first use) clock offset search
+attributetype ( TRID:2.3.8 NAME 'otpTimeIssued'
+  DESC 'Time OTP token issued (unix epoch seconds)'
+  EQUALITY integerMatch
+  SYNTAX INTEGER
+  SINGLE-VALUE
+  )
+
+# saved clock offset for DR
+attributetype ( TRID:2.3.9 NAME 'otpClockOffset'
+  DESC 'OTP token clock offset (from unix epoch)'
+  EQUALITY integerMatch
+  SYNTAX INTEGER
+  SINGLE-VALUE
+  )
+
+# saved clock drift for DR
+attributetype ( TRID:2.3.10 NAME 'otpDrift'
+  DESC 'OTP token drift'
+  EQUALITY integerMatch
+  SYNTAX INTEGER
+  SINGLE-VALUE
+  )
+
+# gsmd which contains state data for this user
+attributetype ( TRID:2.3.11 NAME 'otpStateLocationHint'
+  DESC 'OTP token authoritative synchronous state server hint'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+# key and PIN data should be protected by ACL, but in the event
+# of a mistake, or to protect data from privileged insiders, key
+# and PIN can be encrypted.
+#   'clear': key and PIN are cleartext
+#     'pin': key is encrypted with the PIN (not recommended)
+# 'pin-md5': key is encrypted with the md5 of the PIN
+# '<keyid>': key and PIN are encrypted with this numeric key identifier
+# Any value other than the above is treated as 'clear'.
+attributetype ( TRID:2.3.12 NAME 'otpKeyEncryption'
+  DESC 'OTP key and PIN encryption: clear/pin/<keyid>'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.13 NAME 'otpService'
+  DESC 'OTP token service differentiator'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  )
+
+attributetype ( TRID:2.3.14 NAME 'otpAuthAlert'
+  DESC 'OTP token authentication alert recipients'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  )
+
+attributetype ( TRID:2.3.15 NAME 'otpDuressAlert'
+  DESC 'OTP token duress alert recipients'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  )
+
+attributetype ( TRID:2.3.16.1 NAME 'otpTmpStaticPassword'
+  DESC 'OTP temporary static password'
+  EQUALITY caseIgnoreMatch
+  SYNTAX DirectoryString
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.16.2 NAME 'otpTmpStaticPasswordExpiry'
+  DESC 'OTP temporary static password expiry'
+  EQUALITY integerMatch
+  SYNTAX INTEGER
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.17.1 NAME 'otpTmpRWindow'
+  DESC 'OTP temporary rwindow'
+  EQUALITY integerMatch
+  SYNTAX INTEGER
+  SINGLE-VALUE
+  )
+
+attributetype ( TRID:2.3.17.2 NAME 'otpTmpRWindowExpiry'
+  DESC 'OTP temporary rwindow expiry'
+  EQUALITY integerMatch
+  SYNTAX INTEGER
+  SINGLE-VALUE
+  )
+
+# if numeric serial #s are generated,
+# this is used as an atomic sequence counter
+attributetype ( TRID:2.3.99 NAME 'otpSerialSequence'
+  DESC 'OTP serial number sequence counter'
+  EQUALITY integerMatch
+  SYNTAX INTEGER
+  SINGLE-VALUE
+  )
+
+#
+# object classes
+#
+
+# objectclass for users
+objectclass ( TRID:2.4.1 NAME 'otpToken' SUP top AUXILIARY
+  DESC 'Attributes related to an OTP token'
+  MUST ( otpVendor $ otpModel $ otpKey1 )
+   MAY ( otpSerial $ otpKey2 $ otpKey3 $ otpIPIN $ otpPIN $ otpDuressPIN $
+         otpTimeIssued $ otpClockOffset $ otpDrift $
+         otpStateLocationHint $ otpKeyEncryption $ otpService $
+         otpAuthAlert $ otpDuressAlert $
+         otpTmpStaticPassword $ otpTmpStaticPasswordExpiry $
+         otpTmpRWindow $ otpTmpRWindowExpiry )
+  )
+
+# objectclass for unassigned tokens
+objectclass ( TRID:2.4.2 NAME 'otpTokenPool' SUP top STRUCTURAL
+  DESC 'Attributes related to an OTP token'
+  MUST ( otpVendor $ otpModel $ otpKey1 $ otpSerial )
+   MAY ( otpKey2 $ otpKey3 $ otpKeyEncryption )
+  )
+
+# objectclass to hold the serial number sequence
+objectclass ( TRID:2.4.3 NAME 'otpSerialPool' SUP top AUXILIARY
+  DESC 'Atomic serial number sequence pool'
+  MUST otpSerialSequence
+  )

@@ -1,0 +1,282 @@
+otpd-3.1.0: 2008/02/11
+  - gsmd: add support for gsmd backup server and failover
+  - gsmd: fix request type field in gsmd message
+  - gsmd: combine GET and PUT seqno sequences into a single sequence
+  - lsmd: guarantee that entire state data is read
+  - lsmd: report error if state data is too large
+  - lsmd: reduce max state size to 892 bytes from 1024 bytes
+  - lsmd: improve reporting of statedir errors
+  - config: disallow gsmd configuration in otpd.conf
+
+otpd-3.0.0: 2008/01/30
+  - integrate lsmd (lsmd is now eliminated)
+  - fix timeout handling affecting gsmd and LDAP communication (timer ran fast)
+  - update userops API
+  - add gsmd support when using file backend
+  - config: fix test for file vs ldap mutual exclusivity
+  - config: add explicit backend keyword
+
+otpd-2.5.2: 2007/12/12
+  - fix per-user rwindow bug (random value) when using file backend
+
+otpd-2.5.1: 2007/12/11
+  - fix ascii to hex conversion bug introduced in 2.5.0
+  - fix otpauth error string reporting
+
+otpd-2.5.0: 2007/12/07
+  - add resynctool for manual resync of event-based hotp tokens
+  - change ewindow and rwindow defaults to 5 and 25, respectively
+  - remove cyclades support
+  - ldap: add per-user tmp static passwd override
+  - ldap: add per-user tmp rwindow override
+  - ldap: Active Directory schema fixes
+  - userops: fix ctor declaration on Solaris
+  - configure: check for $CC tls support
+  - build: link otpauth against minimal set of libraries
+  - install: save old config file
+
+otpd-2.4.0: 2007/11/09
+  - rate limit rwindow auths to 1/s
+  - update documentation
+  - update packaging
+  - recommend 25 for rwindow
+  - ldap: add Active Directory support
+  - trid: fix little-endian event-based HOTP bug
+
+otpd-2.3.0: 2007/10/02
+  - add OTP_RC_NEXTPASSCODE to inform client of rwindow candidate action
+  - add pin-md5 encrypt mode
+  - trid: remove beta-3 (final beta) support
+  - trid: support event-based HOTP tokens
+  - update license (trivial typo)
+
+otpd-2.2.1: 2007/07/12
+  - trid: fix nullstate bug (nullstate didn't work correctly)
+
+otpd-2.2.0: 2007/05/22
+  - fix off-by-one bug in key configuration, which disallowed sequential keyids
+  - change generic hotp card names (add a '-') to support LDAP
+  - change otp_request_t to v2, to save some space
+  - cardops: update name2fm() method to accept state arg
+  - ldap: update otpSerialPool from STRUCTURAL to AUXILIARY
+  - trid: remove suppport for 5-digit OTPs
+  - trid: improve card name parsing
+  - trid: add totp (TRI-D OTP) algorithm
+  - trid: add new card naming format, to select hard/soft and hotp/totp
+  - trid: deprecate trid-hotp-* names in favor of trid-hard-hotp-*
+  - trid: remove beta-2 support
+
+otpd-2.1.8: 2007/05/03
+  - ldap: more robust handling of otpKeyEncryption errors
+  - ldap: allow otpKeyEncryption=clear, as documented
+  - ldap: update otp.schema for openldap < 2.3 compatibility
+  - ldap: correct otp.schema closing parens syntax
+  - include otpauth utility
+  - fix Makefile install target
+
+otpd-2.1.7: 2007/04/18
+  - ldap: link statically against included libldap
+  - ldap: add otpTokenPool objectclass
+
+otpd-2.1.6: 2007/04/16
+  - ldap: fix included libldap missing symlink
+
+otpd-2.1.5: 2007/04/15
+  - fix build of userops modules
+  - ldap: include libldap
+
+otpd-2.1.4: not released
+
+otpd-2.1.3: 2007/04/13
+  - fix cryptocard and x99 "phone response" passcode length bug
+  - actually accept -u option as documented
+  - ldap: fix some minor config error reporting bugs
+  - ldap: change otpToken objectClass from STRUCTURAL to AUXILIARY
+  - ldap: release ldap module as open source
+
+otpd-2.1.2: 2007/01/19
+  - fix state release (PUT) command formatting in error path (rare issue)
+  - ldap: add otpDuressAlert object, rename otpAuthAlertAddress to otpAuthAlert
+
+otpd-2.1.1: 2007/01/13
+  - set pin correctly in pin encrypt mode
+  - fix buffer overflow in key decrypt when using pin encrypt mode
+
+otpd-2.1: 2007/01/12
+  - add otppasswd key and pin encryption
+  - change otppasswd pin format from ASCII to hex
+  - early exit (skip crypto) for plaintext auth if passcode length is wrong
+  - don't run cardops and userops constructors more than once on solaris
+  - fix lsmd/gsmd config ignore; handle any level of subsections
+  - improve config syntax checking of otpd section
+  - cardops: rename keystring2keyblock method as keystring2key
+  - cardops: simplify name2fm method
+  - userops: return error if PIN format is wrong
+  - ldap: handle missing otpPIN and otpStateLocationHint correctly
+  - ldap: fix memleak in attribute format error path
+  - update API docs
+
+otpd-2.0: 2007/01/04
+  - ldap: add TLS support
+  - ldap: add timeout when connecting to ldap server
+  - ldap: use connection pool to allow re-use
+  - ldap: require OpenLDAP >= 2.3.4, for start tls (drops FC3 and FC4 support)
+  - ldap: validate otpTimeIssued attribute
+  - ldap: don't try to parse error result
+  - ldap: fix bug allowing only ridiculously short hostnames
+  - ldap: add otpAuthAlertAddress object
+  - userops: add put() method
+  - userops: allocate user in get() (rather than having caller allocate)
+  - fix pointer target signedness errors for gcc-4.x and Sun CC
+
+otpd-1.99.2: 2006/12/20 (limited test release)
+  - add timeout config var, and propagate it (smartly) to lsmd
+  - remove ldap timeout config var (use top level timeout)
+  - send gsmd data to lsmd
+  - fix state manager request buf undersize bug
+  - fix ascii vs hex bug when saving cryptocard challenge data
+  - fix lsmd/gsmd config parsing to ignore subsections
+  - syslog reason for GET NAK response from state manager
+  - syslog (at LOG_NOTICE) when user auth fails
+  - change user auth success syslog to LOG_NOTICE from LOG_INFO
+  - improve logging for user_get() failures
+  - log starting/stopping message with progname and version
+  - update API documentation
+  - userops: run all known constructors if they didn't run (for Cyclades ACS)
+  - userops: add hrtime arg to get() method
+  - ldap: return error on lookup errors, don't exit
+  - ldap: add otpDuressPIN, otpClockOfset, otpDrift, otpService objects
+  - ldap: add otpSerialSequence and otpSerialPool objects for provisioning tool
+  - trid: fix bug handling 160-bit keys
+  - trid: handle drift as integer not float, update csd to version 2
+  - trid: set maxtwin dynamically, for minimum twindow based on known drift
+  - trid: walk forward in time for nullstate twin, not backwards
+  - trid: cache csd and rd data on first use
+  - trid: treat t:next e:0 as consecutive
+
+otpd-1.99.1: 2006/10/23 (limited test release)
+  - add basic ldap support
+  - possibly improve hotp perf very slightly by moving some stack vars to .data
+  - enforce username char restrictions (needed for LDAP to avoid wildcards)
+  - work around gcc -Wcast-align warnings on sparc
+  - force inclusion of ident tags with gcc -O2
+  - add ident tags to header files with gcc (already present for Sun CC)
+  - fix minor documentation typos (otpd.conf and otppasswd.5)
+  - update documentation
+  - cardops: remove const from maxtwin() state arg
+  - cardops: add when arg to maxtwin()
+  - cardops: add const to response() user arg
+  - trid: remove trid-beta-1 support
+  - trid: major improvement of twin handling for nullstate
+  - add -v arg to display version
+  - configure: improve -gstabs test to work when configure called with --target
+
+otpd-1.2.1: 2006/09/28
+  - don't complain about missing state rd; this is normal
+  - add support for trid-hotp-* cards
+  - fix cardops modules' key verification to correctly verify key length
+
+otpd-1.2: 2006/07/14
+  - add -u option
+  - syslog (at LOG_INFO) a message when user is authenticated
+  - fix mschap/mschap2 passcode unicode-encoding
+  - fix free() of static storage when using -s option
+  - update documentation
+  - Makefile: install sysconfdir
+
+otpd-1.1: 2006/06/22
+  - add init scripts for RH/FC and Solaris
+  - add LICENSE.TRID
+  - fix rwindow behavor to match documentation -- accept consecutive
+    passcodes at any time, not just when user is in the delay period
+  - change 'log_level' to accept symbolic names instead of integers
+  - change 'debug' option to 'log_level' (to match new 'log_facility' option)
+  - improve config parser
+  - fix off-by-one error with state_rp and otpd_rp options
+    (caused by a difference between flex and lex)
+  - fix fd leak (which also caused lsmd to leak an fd) on client disconnect
+  - add log_facility option
+  - fix LOG_NDELAY option to openlog() -- pass as logopt, not facility
+  - fix a mistaken error log about invalid rwindow data when it is missing;
+    it is cleared on successful auth so empty rwindow data is normal
+  - add lint notation for mlog() -- and caught a few format errors
+  - use -gstabs not -g on sparc-sun-solaris to avoid a gas bug
+  - automatically use target-specific tri-d dropin cardops object
+  - make clean: don't remove dropin cardops objects
+  - force sysconfdir to be /etc, to avoid templatizing docs
+  - remove rwindow_delay option; it has no reason to exist
+  - rename ChangeLog file to NEWS to match standard usage
+  - some Makefile fixes
+  - improve error reporting
+  - improve documentation
+
+otpd-1.0: 2006/05/30
+  - move otp functionality from plugin into standalone daemon
+  - add trid-beta-3 support
+  - add generic hotp support
+  - add generic x9.9 support
+  - improve state manager communication (retry on disconnect)
+  - fix a few critical bugs in error path
+  - add man pages
+  - update README docs
+  - implement config parser in yacc/lex
+  - update Makefile to allow dropin .o cardops modules
+
+[ pam_otp_auth NEWS related to otp ]
+pam_otp_auth-2.0: 2005/11/08
+  - use state manager rather than handling state locally
+  - add trid-beta-1 and trid-beta-2 support
+  - run all known cardops constructors if they didn't run (for Cyclades ACS)
+  - add logging when a window position is skipped for being too early
+  - major cardops layer API changes
+  - add boundary checking on keystrings
+  - twindow (time-based cards) support
+  - add nullstate support
+  - change ewindow2 to rwindow
+  - 64bit fixes
+  - add csd support
+  - hotp support
+  - warn if hardfail <= softfail (which disables softfail)
+  - new error messages for hardfail/softfail
+  - simplify Makefile
+  - fix gcc aliasing deficiency
+  - new changelog format
+
+pam_otp_auth-1.5: 2005/06/27
+  - soft PIN support
+
+pam_otp_auth-1.4: 2005/06/24
+  - rename to pam_otp to reflect broader scope
+  - add cardops layer to abstract card/vendor-specific details
+  - major doc updates
+  - update TG-24-1999 (X9.9 withdrawal) URL
+  - use gcc as linker, instead of ld, to allow multile cardops constructors
+  - async auth was allowed if both allow_async and fast_sync not set,
+    preventing admin from disallowing async auth in some cases
+  - last_auth wasn't being updated fc == FAIL_SOFT but ewindow2 disabled,
+    breaking delay timer reset for softfail mode
+  - document unused auth_pos update in ewindow2 failures (will fix later)
+  - general code reorg + consolidation
+  - update last_auth if fc == FAIL_HARD
+  - add a sanity check, to assert that challenge != NULL
+  - fix setting of auth_pos on some failure cases
+  - simplify ewindow2 a bit
+  - add -Wno-unused-label to quiet extra labels in x99_cardops.c
+  - new source repository
+  - update contact info and copyright holder
+  - logging typo
+
+pam_otp_auth-1.3: 2003/02/05
+  - no otp changes
+
+pam_otp_auth-1.2: 2003/01/17
+  - Improve logging for unknown user events and spurious errors.
+
+pam_otp_auth-1.1: 2002/10/12
+  - Update configure to support cross-compilation.
+  - Fix some typos from 1.0 which prevented compilation.
+  - Support ewindow2 changes integrated earlier.
+  - Enforce some sync option combination restrictions.
+
+pam_otp_auth-1.0: 2002/07/19
+  - 1.0 released.

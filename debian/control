@@ -1,0 +1,13 @@
+Source: otpd
+Section: unknown
+Priority: optional
+Maintainer: TRI-D Systems, Inc. <support@tri-dsystems.com>
+Build-Depends: debhelper (>= 4.0.0), libssl-dev, libldap-dev
+Standards-Version: 3.6.2
+
+Package: otpd
+Architecture: i386
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: OTP token authentication daemon
+ otpd is part of a suite of software for authenticating users with
+ handheld OTP tokens.

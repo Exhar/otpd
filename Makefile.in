@@ -1,0 +1,170 @@
+# Makefile.in for otpd
+
+PACKAGE_NAME = @PACKAGE_NAME@
+PACKAGE_VERSION = @PACKAGE_VERSION@
+PACKAGE_DATE = @PACKAGE_DATE@
+
+TAR = tar
+CC = @CC@
+LEX = @LEX@
+YACC = @YACC@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+
+DEFINES = @DEFINES@ -DVERSION=\"@PACKAGE_VERSION@\"
+# fix some stupidity
+DEFINES += -Wp,-U_FORTIFY_SOURCE -U_FORTIFY_SOURCE
+WARNINGS = -Wall -Wshadow -Wsign-compare -Werror
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ @SOCKET_LIBS@
+SOCKET_LIBS = @SOCKET_LIBS@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+sbindir = @sbindir@
+libdir = @libdir@
+mandir = @mandir@
+sysconfdir = /etc
+srcdir = @srcdir@
+
+USE_LDAP = @USE_LDAP@
+LDAP_DIR = @LDAP_DIR@
+LDAP_LIBS = @LDAP_LIBS@
+LIBLDAP_LA = $(LDAP_DIR)/libraries/libldap/libldap.la
+LIBLBER_LA = $(LDAP_DIR)/libraries/liblber/liblber.la
+
+CONFIG_SRCS = scanner.c y.tab.c
+USEROPS_SRCS = $(wildcard userops/*.c)
+SRCS  = $(CONFIG_SRCS) $(USEROPS_SRCS) accept_thread.c failover_thread.c
+SRCS += gsmd.c helix.c hotp.c 
+SRCS += lock.c main.c mlog.c nonce.c otp.c site.c state.c uhash.c work_thread.c
+SRCS += x99.c xfunc.c
+OBJS  = $(patsubst %.c,%.o,$(SRCS))
+MAN   = otpd.8 otppasswd.5 resynctool.8
+
+# cardops is separate to allow drop-in object files
+CARDOPS_SRCS := $(wildcard cardops/*.c)
+CARDOPS_OBJS := $(patsubst %.c,%.o,$(CARDOPS_SRCS))
+CARDOPS_XOBJS = $(filter-out $(CARDOPS_OBJS), $(wildcard cardops/*.o))
+CARDOPS_OBJS += $(CARDOPS_XOBJS)
+
+all: otpd otpauth resynctool init-scripts
+
+otpd: $(OBJS) $(CARDOPS_OBJS)
+	$(CC) -o $@ $(LDFLAGS) $^ $(LDAP_LIBS) $(LIBS)
+
+otpauth: otpauth.o
+	$(CC) -o $@ $(LDFLAGS) $^ $(SOCKET_LIBS)
+
+resynctool: resynctool.o
+	$(CC) -o $@ $(LDFLAGS) $^ -lcrypto
+
+init-scripts: redhat/otpd.init solaris/manifest
+
+redhat/otpd.init: redhat/otpd.init.in
+	perl -pe 's:\@sbindir\@:$(sbindir):' $^ > $@
+
+solaris/manifest: solaris/manifest.in
+	perl -pe 's:\@sbindir\@:$(sbindir):; s:\@mandir\@:$(mandir):' $^ > $@
+
+install: install-otpd install-otpauth install-resynctool
+
+install-otpd: otpd
+	$(INSTALL) -d $(DESTDIR)$(sbindir)
+	$(INSTALL) otpd $(DESTDIR)$(sbindir)/otpd
+	$(INSTALL) -d $(DESTDIR)$(mandir)/man8
+	$(INSTALL_DATA) otpd.8 $(DESTDIR)$(mandir)/man8/otpd.8
+	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
+	-[ -f $(DESTDIR)$(sysconfdir)/otpd.conf ] && mv $(DESTDIR)$(sysconfdir)/otpd.conf $(DESTDIR)$(sysconfdir)/otpd.conf.save
+	$(INSTALL_DATA) otpd.conf $(DESTDIR)$(sysconfdir)/otpd.conf
+	chmod 0600 $(DESTDIR)$(sysconfdir)/otpd.conf
+
+install-otpauth: otpauth
+	$(INSTALL) -d $(DESTDIR)$(sbindir)
+	$(INSTALL) otpauth $(DESTDIR)$(sbindir)/otpauth
+
+install-resynctool: resynctool
+	$(INSTALL) -d $(DESTDIR)$(sbindir)
+	$(INSTALL) resynctool $(DESTDIR)$(sbindir)/resynctool
+	$(INSTALL) -d $(DESTDIR)$(mandir)/man8
+	$(INSTALL_DATA) resynctool.8 $(DESTDIR)$(mandir)/man8/resynctool.8
+
+distclean: clean
+	rm -rf Makefile config.log config.status autom4te.cache redhat/otpd.init solaris/manifest
+ifeq ($(USE_LDAP), included)
+	$(MAKE) -C $(LDAP_DIR)/libraries SUBDIRS="liblutil liblber liblunicode libldap" veryclean
+	$(MAKE) -C $(LDAP_DIR) SUBDIRS="include" veryclean
+	@rm -f $(LDAP_DIR)/junk.c
+endif
+
+clean:
+	rm -f otpd $(OBJS) otpauth otpauth.o resynctool resynctool.o $(patsubst %.c,%.o,$(CARDOPS_SRCS))
+ifeq ($(USE_LDAP), included)
+	$(MAKE) -C $(LDAP_DIR)/libraries SUBDIRS="liblutil liblber liblunicode libldap" $@
+	$(MAKE) -C $(LDAP_DIR) SUBDIRS="include" $@
+endif
+
+common_headers = extern.h
+specific_headers = $(filter-out $(common_headers),$(wildcard *.h cardops/*.h userops/*.h))
+objs_with_headers = $(patsubst %.h,%.o,$(specific_headers))
+$(objs_with_headers): %.o: %.h
+
+otp.o state.o user.o: cardops.h
+site.o state.o work_thread.o x99.o: otp.h
+state.o: gsm.h
+$(CARDOPS_SRCS): cardops.h otp.h
+
+%.o: %.c $(common_headers)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(WARNINGS) -c -o $@ $<
+
+helix.o: helix.c $(common_headers)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(WARNINGS) -fno-strict-aliasing -c -o $@ $<
+
+$(LIBLDAP_LA):
+	@# libldap needs ldap_config.h, which does not have a proper dependency
+	$(MAKE) -C $(LDAP_DIR)/include
+	@# libldap needs the others, but again no proper dependencies
+	$(MAKE) -C $(LDAP_DIR)/libraries SUBDIRS="liblutil liblber liblunicode libldap"
+
+$(LIBLBER_LA):
+	@# liblber needs ldap_config.h, which does not have a proper dependency
+	$(MAKE) -C $(LDAP_DIR)/include
+	@# libldap needs liblutil, but again no proper dependency
+	$(MAKE) -C $(LDAP_DIR)/libraries SUBDIRS="liblutil liblber"
+
+ifeq ($(USE_LDAP), included)
+userops/ldap.o: $(LIBLDAP_LA) $(LIBLBER_LA) userops/ldap.c $(common_headers)
+endif
+scanner.o: scanner.c $(common_headers)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(WARNINGS) -Wno-implicit -Wno-unused-function -Wno-unused-label -Wno-sign-compare -c -o $@ $<
+# have to rename lex.yy.c if we want to distribute it,
+# to avoid conflict with AC_PROG_LEX test which removes it
+scanner.c: config.l y.tab.h
+	$(LEX) config.l
+	mv lex.yy.c scanner.c
+	perl -i -pe s/lex.yy.c/scanner.c/ scanner.c
+y.tab.c y.tab.h: config.y
+	$(YACC) -d config.y
+
+otpd.8: otpd.8.pod
+	pod2man -d $(PACKAGE_DATE) -s 8 -n otpd -r "otpd $(PACKAGE_VERSION)" -c " " $< > $@
+
+otppasswd.5: otppasswd.5.pod
+	pod2man -d $(PACKAGE_DATE) -s 5 -n otppasswd -r "otpd $(PACKAGE_VERSION)" -c " " $< > $@
+
+resynctool.8: resynctool.8.pod
+	pod2man -d $(PACKAGE_DATE) -s 8 -n resynctool -r "otpd $(PACKAGE_VERSION)" -c " " $< > $@
+
+platforms = i386-pc-solaris2.10 i686-pc-linux-gnu sparc-sun-solaris2.10
+platforms += i386-redhat-linux-gnu
+tar: scanner.c y.tab.c y.tab.h $(foreach bin,$(platforms),cardops/trid.o.$(bin)) distclean
+	$(TAR) -C .. --owner=root --group=root --exclude=trid.c --exclude=trid.h  -zcf ../$(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.gz $(PACKAGE_NAME)-$(PACKAGE_VERSION)
+
+srctar: scanner.c y.tab.c y.tab.h $(MAN) distclean
+	test -d ../$(PACKAGE_NAME)-$(PACKAGE_VERSION) || \
+		ln -s $(PACKAGE_NAME) ../$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+	$(TAR) -C .. --owner=root --group=root -zchf ../$(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.gz \
+		$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+	test -L ../$(PACKAGE_NAME)-$(PACKAGE_VERSION) && rm ../$(PACKAGE_NAME)-$(PACKAGE_VERSION)

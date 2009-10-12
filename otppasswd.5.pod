@@ -1,0 +1,143 @@
+=head1 NAME
+
+otppasswd - secrets file for otpd
+
+=head1 DESCRIPTION
+
+The F</etc/otppasswd> file contains the secrets used to authenticate users
+that hold One-Time Password (OTP) tokens.  Each entry is a single line 
+with colon-delimited fields of the form:
+
+  username:tokenid:key[:pin]
+
+The C<pin> field is optional.
+
+The C<key> and C<pin> fields may be encrypted; see otp.conf for a
+description of valid encryption modes and key specification.
+
+=head1 VALID CHARACTERS
+
+In addition to the restrictions noted below, the C<:> (colon) and
+C< > (space) characters are not valid for any field.
+
+=head2 username
+
+C<E<lt>>, C<=>, C<E<gt>>, C<*> and C<~> are invalid characters.
+C<!> (bang) by itself (as a single character username) is also invalid.
+All other printing characters are valid.
+
+=head2 tokenid
+
+All printing characters are valid for the C<tokenid> field.
+
+=head2 key
+
+Only hex digits are valid for the C<key> field: [0-9a-fA-F].
+The key field can be up to 256 octets (512 hex digits) long, however
+the valid size is determined by the type of token.
+
+=head2 pin
+
+Only hex digits are valid for the C<pin> field: [0-9a-fA-F].
+The C<pin> field should consist of the hex value for an ASCII PIN.
+PINs can be up to 16 characters (32 hex digits) long.  Note that
+since the PIN is represented as hex, the C<:> (colon) and C< > (space)
+restriction noted earlier does not apply.
+
+=head1 EXAMPLE
+
+The entry
+
+  bob:trid-hard-hotp-d6-e8:000102030405060708090A0B0C0D0E0F10111213:3132333435
+
+defines the user C<bob>, who holds a C<trid-hard-hotp-d6-e8> token, with key
+C<00...13>, and PIN C<12345>.  (Somebody change the combination on my
+luggage.)
+
+=head1 TOKEN IDS
+
+Token support for otpd(8) is provided by plug-in B<cardops modules>.
+This section describes the token ids supported by modules that are
+included with otpd(8).
+
+=head2 trid
+
+The C<trid> module supports tokens made by TRI-D Systems.  These tokens
+are either time+event or just event synchronous and use either the HOTP
+or the TOTP algorithm.
+
+=over 4
+
+=item trid-I<formfactor>-I<algorithm>-dI<digits>-eI<events>
+
+I<formfactor> describes the class of token, either a C<hard> (physical)
+token or a C<soft> (software) token.
+I<algorithm> is either C<hotp> (RFC 4226 HOTP, time-based), C<eotp> (RFC
+4226 HOTP, event-based) or C<totp> (TRI-D modified HOTP, time-based).
+I<digits> is the number of OTP digits (6-8 for hard HOTP, 6-9 for soft
+HOTP, 6-16 for TOTP).  I<events> is the number of events allowed per
+time cycle (1-16, powers of 2).  For example, C<trid-hard-hotp-d6-e4>.
+Event based tokens do not have the C<-e> field, e.g. C<trid-hard-eotp-d6>.
+
+=back
+
+=head2 cryptocard
+
+The C<cryptocard> module supports tokens made by CRYPTOCard.  These tokens
+are event synchronous and use the X9.9 algorithm.
+
+=over 4
+
+=item cryptocard-I<display>-I<mode>
+
+I<display> specifies both the representation (C<h> for hex or C<d>
+for decimal) and the number of digits (7, 8, or C<p> for phone).
+Phone mode is the same as 7-digit mode, except that the user is
+expected to actually enter the C<-> (dash) shown on the token
+display in 7-digit mode.  For example, C<h8> describes an 8-digit
+hex display, and C<dp> describes a 7-digit decimal display using
+phone mode.
+
+I<mode> specifies the token's sync mode settings; C<rc> for
+"random challenge" or async-only mode, C<es> for "event sync"
+or sync-only mode, and C<rs> for "random sync" or either mode.
+
+For example, C<cryptocard-d7-es>.
+
+=back
+
+=head2 hotp
+
+The C<hotp> module supports a generic event synchronous HOTP token,
+using a 160-bit key and varying response lengths.
+
+=over 4
+
+=item hotp-dI<digits>
+
+I<digits> is the number of OTP digits (6-9).  For example, hotp-d6.
+
+=back
+
+=head2 x99
+
+The C<x99> module supports a generic asynchronous X9.9 token,
+with 7 or 8 digit hex or decimal response.
+
+=over 4
+
+=item x99-I<display>
+
+I<display> specifies both the representation (C<h> for hex or C<d>
+for decimal) and the number of digits (7 or 8).  For example,
+C<x99-d7>.
+
+=back
+
+=head1 SEE ALSO
+
+otpd(8), lsmd(8), gsmd(8), README
+
+=head1 URL
+
+L<http://www.tri-dsystems.com/>

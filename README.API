@@ -1,0 +1,277 @@
+This document discusses the various APIs/protocols used by otpd.
+Readers should be VERY familiar with all the otpd user documentation.
+It is not necessary to already be familiar with the source code.
+
+1. plugin to otpd communication protocol
+
+   Authentication servers accept auth requests somehow (e.g. via
+   RADIUS) and in turn ask otpd to authenticate the user.  While this
+   communication can be handled natively by the auth server, we
+   typically expect it to be performed by a plugin.  The communication
+   between the plugin and otpd is currently limited to transport over a
+   unix domain socket.  The authentication is done in typical client/
+   server fashion, with a client request followed by a server response.
+
+   Requests are handled serially per connnection.  So in order to make
+   parallel auth requests, a plugin would need to open multiple
+   connections to otpd.
+
+   The auth protocol should be mostly evident from otp.h, which should
+   be included in plugin code.  The data structures exchanged are
+   machine-ordered and packed based on local word size, so are not
+   suitable for network communication.  But for local communication,
+   portable marshalling of data is just an overhead and is avoided.
+
+   When making an authentication request to otpd, the plugin may not
+   have the plaintext passcode.  This is why the passcode is passed in
+   the anonymous pwe (password encoding) struct of request_t.  If the
+   plugin does have the plaintext passcode (e.g., a PAM authentication),
+   then simply set request_t.pwe.pwe to PWE_PAP and strcpy() in the
+   passcode.  For CHAP-style requests, use the other fields of
+   request_t.pwe.
+
+   request_t.challenge[0] must be '\0' if a challenge was not presented
+   to the user.  Otherwise, the garbage there may randomly match a
+   guessed passcode.
+
+   reply_t.passcode is filled in with the plaintext of the passcode, if
+   the request was CHAP-style.  This is needed by MS-CHAPv2 and MPPE,
+   in order to generate mutual authentication data and key material,
+   respectively.  Plugins must take care not to log the returned
+   passcode, because it will contain the user's soft PIN.  The plugin
+   cannot determine which part of the passcode is the PIN and which
+   part is the OTP.  A future version of the protocol may address this,
+   if it becomes necessary.
+
+   All ASCII fields (those whose length is indicated as ... +1) of the
+   request and reply structs must have a NUL byte as the last byte of
+   the field, even if the length of the data is shorter than the field
+   length.  This is so each party can easily verify that it can safely
+   perform str* operations on those fields without worry about buffer
+   overruns.
+
+   reply_t.rc is one of the OTP_RC_* codes.
+
+
+2. cardops module API
+
+   The best way to understand this is simply to inspect the source code
+   provided in the cardops directory.  hotp.* implements an event
+   synchronous HOTP, x99.* implements an asynchronous X9.9 OTP, and
+   cryptocard.* implements a combination async / event sync X9.9 OTP.
+
+   The API is embodied in cardops.h.  All cardops modules need to include
+   "../otp.h", "../cardops.h", and probably "../extern.h".
+
+   In addition to providing all the methods in cardops_t, a cardops
+   module must provide an init function, which must be extern and
+   marked as a constructor, so that at link time it is added to the ELF
+   .initarray section.  An init function should look like:
+
+     void
+     foo_init(void)
+     {
+       if (ncardops == OTP_MAX_VENDORS) {
+         mlog(LOG_CRIT, "foo_init: module limit exceeded");
+         exit(1);
+       }
+     
+       cardops[ncardops++] = foo_cardops;
+     }
+
+   where foo_cardops is a static cardops_t.  init functions may only
+   mlog() on errors that will result in an exit() from init().  This is
+   because at the time the constructor runs, main() has not yet run,
+   and so syslog cannot be initialized.  That means an mlog() from
+   foo_init() will go to stderr.  However, otpd may then become a
+   daemon.  If otpd does become a daemon, it is bad form to have output
+   (even before it daemonizes).  At the time that foo_init() runs, we
+   can't easily determine if otpd is being run as a daemon.
+
+   Now we will discuss the data and methods in cardops_t.  In C, array
+   arguments are the same as pointer arguments, and so array lengths in
+   arguments are ignored (i.e., no checking is done).  In cardops.h,
+   where array arguments are used, it is for documentation purposes; it
+   indicates that the arg must point to already allocated memory of at
+   least the size indicated.  Below, we just use pointer args.
+
+   prefix:
+     This is a string to match on the user's card name (the card name
+     comes from the user database).  For example, "foo" would match on
+     "foo-128" and "foo-160".  All loaded modules must have a unique
+     prefix; only the first module declaring a non-unique prefix will
+     be used.  Also, a module's prefix may not be a prefix of another
+     module's prefix; e.g. if a module with prefix "foo" exists, a
+     module with prefix "foobar" will not be used.
+   plen:
+     The length of the prefix string.
+
+   int name2fm(user_t *user, state_t *state):
+     This is called early on to translate the card name to a uint32_t
+     featuremask (fm).  That fm is used for all subsequent testing of
+     card features, to make if/then decisions based on specific card
+     features.  The state arg is also available if needed, but note
+     that state hasn't been filled in yet.
+
+     The OTP_CF_* #defines specify the bits that may be set in fm.  At
+     least one of the sync/async mode bits must be set.  See the
+     provided modules for some examples of how to use the VS bits.
+
+   int keystring2key(user_t *user, state_t *state):
+     This is called early on to translate the card key from an ASCII
+     string to an unterminated unsigned char array.  user->keystring
+     contains the ASCII key, and this method should populate
+     user->key.  The state arg is also available if needed, but note
+     that state hasn't been filled in yet.
+
+     While this could be done by otp.c without requiring a cardops
+     method, it's useful to have each cardops module handle this in
+     order to allow for card-specific error checking.  keystring2key()
+     must return the length of the key or -1 for error.  Cardops
+     modules can use a2x() from xfunc.c to convert the key and obtain
+     the length.
+
+   int nullstate(const config_t *config, const user_t *user, state_t
+   *state,
+		 time_t when):
+     When requesting state from the state manager, two things happen.
+     One is that the state is returned.  The other is that the user is
+     locked, so that another otpd requesting state gets a NAK
+     response.
+
+     If a user doesn't have any state (e.g., they are a new user who has
+     never logged in), the state manager will return ACK and lock the user,
+     but no state data will be returned.  This is called "null state".
+
+     If your module can initialize the state from an initial condition,
+     do so and return 0.  Otherwise return non-zero.
+
+     The when argument is the authentication time.
+
+   int challenge(const user_t, *user, state_t *state,
+                 unsigned char *challenge, time_t when, int twin, int ewin):
+     This method returns a synchronous challenge.
+
+     In order to evaluate sync responses, otp.c loops through a range
+     of possible event and time "window" positions.  The event range is
+     configured through the ewindow_size param in otp.conf, and the
+     window position currently being evaluated is passed to challenge()
+     via the ewin arg.  The when arg is constant over a single
+     authentication event, and is the time the request came in (it will
+     be the same value as would be passed to nullstate()).  The twin
+     arg is the time window position currently being evaluated.
+
+     Let's consider an event synchronous token.  The server has some
+     idea of what event the token is at (recorded in state), and the
+     user may have played with the token, so this event may not be
+     correct.  However, the token can only be ahead of the server,
+     never behind.  otp.c will call challenge() multiple times, starting
+     with ewin=0 and ending with ewin=ewindow_size.  For each of those
+     calls, challenge() should extract the current expected event from
+     the state arg, then apply ewin to get the nth event.  The resulting
+     nth challenge should be written into the challenge arg.
+
+     Challenges are treated as non-terminated octet strings (NOT
+     ASCII).  The challenge length should be recorded in state->clen.
+     Note that state_t has a challenge field, however once challenge()
+     is called, state_t.clen does not represent the length of that
+     field, it now represents the length of the challenge for the
+     current window position.  This is only a problem if the length
+     of a synchronous challenge changes based on window position.
+
+     Do not change state->challenge; it is the challenge for the
+     previously successful authentication.
+
+     Return 0 on success, non-zero on failure.
+
+   int response(user_t *user, state_t *state, const unsigned char *challenge,
+                size_t clen, char *response):
+     After calling challenge() to generate a synchronous challenge for
+     the current time and event window position being evaluated, otp.c
+     will call response() to determine the correct passcode for that
+     window position.
+
+     Do not use state->challenge to generate the response, use the
+     challenge arg.  state->challenge is the challenge for the
+     previously successful authentication; the challenge arg is the
+     challenge for the current window position being evaluated,
+     obtained by calling the challenge() method.
+
+     Return 0 on success, non-zero on failure.
+
+   int updatecsd(state_t *state, time_t when, int twin, int ewin, int authrc):
+     If the user's passcode is correct (this is not necessarily a
+     successful authentication; the authrc arg contains that data), 
+     updatecsd() will be called so that the card module can update
+     the csd and rd fields of state_t.
+
+     csd is used internally by the card module, so use that for whatever
+     local data you need to store that changes from auth-to-auth.
+
+     rd should be used for rwindow data, so that you can override the
+     softfail condition when 2 consecutive successful authentications
+     occur.  See source code for examples.  (This won't make any sense
+     if you don't fully understand softfail and rwindow concepts.)
+
+     Return 0 on success, non-zero on failure.
+
+   int isconsecutive(const user_t *user, state_t *state, int ewin):
+     This is used by otp.c to determine if two correct passcodes are
+     from two consecutive window positions.  Use state->rd to get
+     data about the previous successful passocde, then you can evaluate
+     the current window position to see if it is consecutive.
+
+     Return 1 if ewin is consecutive, 0 otherwise.
+
+   int maxtwin(const user_t *user, state_t *state, time_t when):
+     This is used by time synchronous cards to return the maximum value
+     of twin that will be looped over and passed to challenge() and
+     updatecsd().
+
+     Return -1 on error, 0+ for twin value.
+
+   char *printchallenge(char *s, const unsigned char *challenge, size_t len):
+     This method converts the octet string challenge to an ASCII string.
+     Fill in s and return it.  (return NULL on error)
+
+     It is used only for debugging.
+
+4. user module API
+
+   Like cardops modules, userops modules must provide an init function,
+   which must be extern and marked as a constructor, so that at link time
+   it is added to the ELF .initarray section.  It should look like:
+
+     void
+     userops_foo_init(void)
+     {
+       userops[OTPD_USEROPS_FOO].init1 = foo_init1;
+       userops[OTPD_USEROPS_FOO].get = foo_get;
+     }
+
+   Unlike cardops modules, all userops modules' names are predefined and
+   statically indexed.  This is to simplify otpd configuration (otherwise,
+   userops-specific configuration sections would have to be passed to
+   each module for parsing).
+
+   init functions may only mlog() on errors that will result in an exit()
+   from init().  This is because at the time the constructor runs, main()
+   has not yet run, and so syslog cannot be initialized.  That means an
+   mlog() from foo_init() will go to stderr.  However, otpd may then become
+   a daemon.  If otpd does become a daemon, it is bad form to have output
+   (even before it daemonizes).  At the time that userops_foo_init() runs,
+   we can't easily determine if otpd is being run as a daemon.
+
+   Each userops module has to implement two methods, as follows.
+
+   void init1(const config_t *config):
+     This is called once at startup, to do one-time initialization tasks.
+
+   int get(const char *username, user_t **user, const config_t *config,
+	   time_t now):
+     This is called to retrieve user information.
+
+     Return 0 on success, -1 if user was not found, -2 for other errors.
+
+   void put(user_t *user):
+     This is called to release user information obtained with get().

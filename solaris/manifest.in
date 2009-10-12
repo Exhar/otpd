@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+<!--
+	NOTE:  This service manifest is not editable; its contents will
+	be overwritten on upgrade.  Make customizations in a different
+	file.
+-->
+
+<service_bundle type='manifest' name='otpd'>
+
+  <service name='site/otp/otpd'
+           type='service'
+           version='1'>
+
+    <dependency name='system-log'
+	        grouping='optional_all'
+	        restart_on='none'
+	        type='service'>
+      <service_fmri value='svc:/system/system-log' />
+    </dependency>
+
+    <dependency name='config-file'
+	        grouping='require_all'
+	        restart_on='none'
+	        type='path'>
+      <service_fmri value='file://localhost/etc/otpd.conf' />
+    </dependency>
+
+    <instance name='default'
+              enabled='false'>
+
+      <exec_method type='method'
+                   name='start'
+                   exec='@sbindir@/otpd'
+                   timeout_seconds='3' />
+
+      <exec_method type='method'
+                   name='stop'
+                   exec=':kill'
+                   timeout_seconds='3' />
+
+    </instance>
+
+    <stability value='Unstable' />
+
+    <template>
+      <common_name>
+        <loctext xml:lang='C'>
+          otpd
+        </loctext>
+      </common_name>
+
+      <documentation>
+        <manpage title='otpd'
+                 section='8'
+                 manpath='@mandir@' />
+      </documentation>
+    </template>
+
+  </service>
+
+</service_bundle>
