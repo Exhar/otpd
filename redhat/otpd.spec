@@ -39,9 +39,9 @@ chmod 0644 $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 # create the plugin socket directory
 mkdir -p -m 0755 $RPM_BUILD_ROOT/var/run/%{name}
 # schema
-mkdir -p $RPM_BUILD_ROOT%{_libdir}/trid
-%{__install} -m 0644 userops/otp.schema $RPM_BUILD_ROOT%{_libdir}/trid
-%{__install} -m 0755 userops/schema2ad  $RPM_BUILD_ROOT%{_libdir}/trid
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/otpd
+%{__install} -m 0644 userops/otp.schema $RPM_BUILD_ROOT%{_libdir}/otpd
+%{__install} -m 0755 userops/schema2ad  $RPM_BUILD_ROOT%{_libdir}/otpd
 
 %clean
 cd ..
@@ -66,13 +66,13 @@ fi
 
 %files
 %defattr(-, root, root)
-%doc NEWS README LICENSE.TRID README.API README.LICENSE
+%doc NEWS README README.API README.LICENSE
 %dir /var/run/%{name}
 %attr(0600, root, root) %config(noreplace) /etc/%{name}.conf
 %config(noreplace) /etc/sysconfig/%{name}
 %{_initrddir}/%{name}
 %{_sbindir}/*
-%{_libdir}/trid
+%{_libdir}/otpd
 %{_mandir}/*/*
 
 %changelog

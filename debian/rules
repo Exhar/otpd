@@ -60,8 +60,8 @@ install: build
 
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/otpd
 	# schema
-	install -D -m 0644 userops/otp.schema $(CURDIR)/debian/otpd/usr/lib/trid/otp.schema
-	install -m 0644 userops/schema2ad $(CURDIR)/debian/otpd/usr/lib/trid/schema2ad
+	install -D -m 0644 userops/otp.schema $(CURDIR)/debian/otpd/usr/lib/otpd/otp.schema
+	install -m 0644 userops/schema2ad $(CURDIR)/debian/otpd/usr/lib/otpd/schema2ad
 
 
 # Build architecture-independent files here.
