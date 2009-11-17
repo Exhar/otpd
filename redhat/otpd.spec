@@ -1,15 +1,14 @@
 Summary:	OTP token authentication daemon
 Name:		otpd
-Version:	3.1.0
+Version:	3.2.0
 Release:	1
-License:	GPL + Proprietary
+License:	GPL
 Group:		System Environment/Daemons
-Vendor:		TRI-D Systems, Inc.
-URL:		http://www.tri-dsystems.com/
-Packager:	TRI-D Systems, Inc. <support@tri-dsystems.com>
+Vendor:		Fedora Project
+URL:		http://otpd.googlecode.com/
+Packager:	Giuseppe Paterno' <gpaterno@redhat.com>
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 
-#Source:	http://www.tri-dsystems.com/software/dl/community/download.cgi?sw=%{name}-%{version}.tar.gz
 Source:	%{name}-%{version}.tar.gz
 
 BuildRequires: openssl-devel, openldap-devel
@@ -75,6 +74,9 @@ fi
 %{_mandir}/*/*
 
 %changelog
+* Mon Nov 16 2009 Giuseppe Paterno' <gpaterno@redhat.com>
+- Polished for the EPEL repository, first release in fedoraproject
+
 * Mon Feb 11 2008 Frank Cusack <frank@tri-dsystems.com> 3.1.0-1
 - new release
 
