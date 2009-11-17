@@ -1,8 +1,8 @@
 # configure.ac
-AC_INIT(otpd, 3.1.0, frank@tri-dsystems.com)
+AC_INIT(otpd, 3.2.0, gpaterno@redhat.com)
 
 AC_PREREQ([2.59])
-AC_COPYRIGHT([Copyright 2005-2008 TRI-D Systems, Inc.])
+AC_COPYRIGHT([Copyright 2005-2008 TRI-D Systems, Inc. - Copyright 2009 Giuseppe Paterno'])
 AC_REVISION([$Revision: #1 $])
 
 AC_CONFIG_SRCDIR([main.c])
@@ -18,8 +18,8 @@ AC_ARG_WITH(openssl,
             [ CFLAGS="$CFLAGS -I$withval/include"
               LDFLAGS="$LDFLAGS -L$withval/lib$LIB64 -R$withval/lib$LIB64" ])
 # make sure user knows trid isn't available for their platform
-AC_ARG_WITH(trid,
-          AS_HELP_STRING([--without-trid], [don't include TRI-D token support]))
+#AC_ARG_WITH(trid,
+#          AS_HELP_STRING([--without-trid], [don't include TRI-D token support]))
 # libldap
 AC_ARG_WITH(included-libldap,
             AS_HELP_STRING([--with-included-libldap], [use included libldap]))
@@ -120,15 +120,15 @@ fi
 
 AC_CHECK_FUNCS([pset_info], DEFINES="$DEFINES -DHAVE_PSET_INFO")
 
-# use the correct tri-d module
-if test -f cardops/trid.c ; then
-  :
-elif test -f cardops/trid.o.$target ; then
-  cp cardops/trid.o.$target cardops/trid.o
-  chmod +w cardops/trid.o
-elif test "$with_trid" != "no" ; then
-  AC_MSG_ERROR([TRI-D support for $target not found; use --without-trid to disable])
-fi
+## use the correct tri-d module
+#if test -f cardops/trid.c ; then
+#  :
+#elif test -f cardops/trid.o.$target ; then
+#  cp cardops/trid.o.$target cardops/trid.o
+#  chmod +w cardops/trid.o
+#elif test "$with_trid" != "no" ; then
+#  AC_MSG_ERROR([TRI-D support for $target not found; use --without-trid to disable])
+#fi
 
 if test "${with_included_libldap+set}" != "set"; then
   # use system ldap by default, but fallback to included ldap

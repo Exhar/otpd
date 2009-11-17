@@ -26,6 +26,8 @@ handheld OTP tokens.
 %{__make}
 
 %install
+rm -rf $RPM_BUILD_ROOT
+
 %makeinstall
 # install the init script
 mkdir -p $RPM_BUILD_ROOT%{_initrddir}
