@@ -14,7 +14,7 @@ INSTALL_DATA = @INSTALL_DATA@
 DEFINES = @DEFINES@ -DVERSION=\"@PACKAGE_VERSION@\"
 # fix some stupidity
 DEFINES += -Wp,-U_FORTIFY_SOURCE -U_FORTIFY_SOURCE
-WARNINGS = -Wall -Wshadow -Wsign-compare -Werror
+WARNINGS = -Wshadow -Wsign-compare -Werror
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
