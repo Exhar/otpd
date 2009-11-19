@@ -9,5 +9,8 @@ Package: otpd
 Architecture: i386
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: OTP token authentication daemon
- otpd is part of a suite of software for authenticating users with
- handheld OTP tokens.
+OTPD is an authentication server capable of validating OTP tokens
+using the HOTP standard (RFC 4226).
+This software can be used in conjunction with a RADIUS server,
+such as FreeRADIUS, to authenticate users.
+

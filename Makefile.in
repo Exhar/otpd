@@ -22,6 +22,7 @@ LIBS = @LIBS@ @SOCKET_LIBS@
 SOCKET_LIBS = @SOCKET_LIBS@
 
 prefix = @prefix@
+datarootdir = @datarootdir@
 exec_prefix = @exec_prefix@
 sbindir = @sbindir@
 libdir = @libdir@

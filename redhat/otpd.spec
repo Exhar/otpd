@@ -1,34 +1,40 @@
 Summary:	OTP token authentication daemon
 Name:		otpd
-Version:	3.2.0
+Version:	3.2.1
 Release:	1
-License:	GPL
+License:	GPLv2+
 Group:		System Environment/Daemons
-Vendor:		Fedora Project
 URL:		http://otpd.googlecode.com/
 Packager:	Giuseppe Paterno' <gpaterno@redhat.com>
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 
-Source:	%{name}-%{version}.tar.gz
+Source:		http://otpd.googlecode.com/files/%{name}-%{version}.tar.gz
 
-BuildRequires: openssl-devel, openldap-devel
-PreReq: /sbin/chkconfig /sbin/service
+BuildRequires:  openssl-devel, openldap-devel
+Requires:	chkconfig
+Requires:	initscripts
+#PreReq: /sbin/chkconfig /sbin/service
 
 %description
-otpd is part of a suite of software for authenticating users with
-handheld OTP tokens.
+OTPD is an authentication server capable of validating OTP tokens
+using the HOTP standard (RFC 4226).
+
+This software can be used in conjunction with a RADIUS server,
+such as FreeRADIUS, to authenticate users.
 
 %prep
 %setup -q
 
 %build
 %configure
-%{__make}
+%{__make} %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%makeinstall
+#%makeinstall
+make install DESTDIR=$RPM_BUILD_ROOT
+
 # install the init script
 mkdir -p $RPM_BUILD_ROOT%{_initrddir}
 %{__install} -m 0755 redhat/%{name}.init $RPM_BUILD_ROOT%{_initrddir}/%{name}
@@ -44,9 +50,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/otpd
 %{__install} -m 0755 userops/schema2ad  $RPM_BUILD_ROOT%{_libdir}/otpd
 
 %clean
-cd ..
 rm -rf $RPM_BUILD_ROOT
-rm -rf $RPM_BUILD_DIR/%{buildsubdir}
 
 %post
 /sbin/chkconfig --add %{name}
