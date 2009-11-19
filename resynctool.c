@@ -216,11 +216,11 @@ main(int argc, char *argv[])
     c2c(counter, challenge);
     hotp(challenge, keyblock, response);
 //#if 0
-    (void) printf("%llu: %s\n", counter, response);
+    (void) printf("%llu: %s\n", (long long unsigned int) counter, response);
 //#endif
     if (!strcmp((char *) response, pass1)) {
       if (debug)
-        (void) printf("matched %s at counter=%llu\n", pass1, counter);
+        (void) printf("matched %s at counter=%llu\n", pass1, (long long unsigned int) counter);
 
       /* matched first pass, look for 2nd */
       c2c(++counter, challenge);
@@ -237,7 +237,7 @@ main(int argc, char *argv[])
       } else if (debug) {
         (void) fprintf(stderr,
                        "mismatch for counter=%llu, wanted: %s got: %s\n",
-                       counter, pass2, response);
+                       (long long unsigned int) counter, pass2, response);
         (void) fprintf(stderr, "continuing search\n");
       } /* else (pass2 does not match) */
     } /* if (pass1 matches) */
