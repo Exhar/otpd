@@ -32,7 +32,6 @@ such as FreeRADIUS, to authenticate users.
 %install
 rm -rf $RPM_BUILD_ROOT
 
-#%makeinstall
 make install DESTDIR=$RPM_BUILD_ROOT
 
 # install the init script
