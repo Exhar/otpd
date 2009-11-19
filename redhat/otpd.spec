@@ -79,6 +79,9 @@ fi
 %{_mandir}/*/*
 
 %changelog
+* Thu Nov 19 2009 Giuseppe Paterno' <gpaterno@redhat.com>
+- Cleaned up some code (failover_thread.c and resynctool.c) to comply with strict compiling
+
 * Mon Nov 16 2009 Giuseppe Paterno' <gpaterno@redhat.com>
 - Polished for the EPEL repository, first release in fedoraproject
 
