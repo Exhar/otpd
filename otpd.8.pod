@@ -77,4 +77,4 @@ otppasswd(5), README
 
 =head1 URL
 
-L<http://www.tri-dsystems.com/>
+L<http://otpd.googlecode.com/>

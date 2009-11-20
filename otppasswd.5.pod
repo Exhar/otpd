@@ -60,27 +60,6 @@ Token support for otpd(8) is provided by plug-in B<cardops modules>.
 This section describes the token ids supported by modules that are
 included with otpd(8).
 
-=head2 trid
-
-The C<trid> module supports tokens made by TRI-D Systems.  These tokens
-are either time+event or just event synchronous and use either the HOTP
-or the TOTP algorithm.
-
-=over 4
-
-=item trid-I<formfactor>-I<algorithm>-dI<digits>-eI<events>
-
-I<formfactor> describes the class of token, either a C<hard> (physical)
-token or a C<soft> (software) token.
-I<algorithm> is either C<hotp> (RFC 4226 HOTP, time-based), C<eotp> (RFC
-4226 HOTP, event-based) or C<totp> (TRI-D modified HOTP, time-based).
-I<digits> is the number of OTP digits (6-8 for hard HOTP, 6-9 for soft
-HOTP, 6-16 for TOTP).  I<events> is the number of events allowed per
-time cycle (1-16, powers of 2).  For example, C<trid-hard-hotp-d6-e4>.
-Event based tokens do not have the C<-e> field, e.g. C<trid-hard-eotp-d6>.
-
-=back
-
 =head2 cryptocard
 
 The C<cryptocard> module supports tokens made by CRYPTOCard.  These tokens
@@ -136,8 +115,8 @@ C<x99-d7>.
 
 =head1 SEE ALSO
 
-otpd(8), lsmd(8), gsmd(8), README
+otpd(8), README
 
 =head1 URL
 
-L<http://www.tri-dsystems.com/>
+L<http://otpd.googlecode.com/>

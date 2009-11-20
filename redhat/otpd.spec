@@ -79,6 +79,9 @@ fi
 %{_mandir}/*/*
 
 %changelog
+* Thu Nov 20 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.2-1
+- Fixed man pages to reflect the fork
+
 * Thu Nov 19 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.1-1
 - Cleaned up some code (failover_thread.c and resynctool.c) to comply with strict compiling
 

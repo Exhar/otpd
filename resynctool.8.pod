@@ -1,6 +1,6 @@
 =head1 NAME
 
-resynctool - Manual resync tool for TRI-D event-based HOTP tokens
+resynctool - Manual resync tool for event-based HOTP tokens
 
 =head1 SYNOPSIS
 
@@ -109,8 +109,8 @@ value it will be added to the initial value.
 
 =head1 SEE ALSO
 
-otpd(8), lsmd(8), RFC 4226
+otpd(8), RFC 4226
 
 =head1 URL
 
-L<http://www.tri-dsystems.com/>
+L<http://otpd.googlecode.com/>
