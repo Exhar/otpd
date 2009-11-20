@@ -104,7 +104,8 @@ rol(uint32_t word, uint32_t n)
       ucwp[li] = uccp[li];       			\
   } while (0)
 
-#define HEUINT32TOLEUCHAR(cp, w) memcpy (cp, &w, 4)
+//#define HEUINT32TOLEUCHAR(cp, w) memcpy (cp, &w, 4)
+#define HEUINT32TOLEUCHAR(cp, w) memcpy ((char *)(cp), (char *)&(w), 4)
 
 /*
 #define HEUINT32TOLEUCHAR(cp, w) do			\
