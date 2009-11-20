@@ -106,12 +106,8 @@ failover_thread(void *arg)
   xlen = HELIX_NONCE_LEN + plen + HELIX_MAC_LEN;
 
   /* populate static part of nonce */
-  //HEUINT32TOLEUCHAR(&c.msg[0], streamid[0]);		/* random constant */
-  //HEUINT32TOLEUCHAR(&c.msg[4], streamid[1]);		/* random constant */
-
-  (void) memcpy( (unsigned char *) &c.msg[0], (unsigned char *) streamid[0], 4 );
-  (void) memcpy( (unsigned char *) &c.msg[4], (unsigned char *) streamid[1], 4 );
-
+  HEUINT32TOLEUCHAR(&c.msg[0], streamid[0]);		/* random constant */
+  HEUINT32TOLEUCHAR(&c.msg[4], streamid[1]);		/* random constant */
 
   c.msg[8] = len & 0xff;				/* low-order len   */
   c.msg[9] = (len & 0xff00) >> 8;			/* high-order len  */
