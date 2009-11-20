@@ -73,7 +73,7 @@ F</etc/otpd.conf>, F</etc/otppasswd>
 
 =head1 SEE ALSO
 
-otppasswd(5), gsmd(8), README
+otppasswd(5), README
 
 =head1 URL
 

@@ -77,6 +77,7 @@ install-otpd: otpd
 	$(INSTALL) otpd $(DESTDIR)$(sbindir)/otpd
 	$(INSTALL) -d $(DESTDIR)$(mandir)/man8
 	$(INSTALL_DATA) otpd.8 $(DESTDIR)$(mandir)/man8/otpd.8
+	$(INSTALL_DATA) otppasswd.5 $(DESTDIR)$(mandir)/man8/otppasswd.5
 	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
 	-[ -f $(DESTDIR)$(sysconfdir)/otpd.conf ] && mv $(DESTDIR)$(sysconfdir)/otpd.conf $(DESTDIR)$(sysconfdir)/otpd.conf.save
 	$(INSTALL_DATA) otpd.conf $(DESTDIR)$(sysconfdir)/otpd.conf

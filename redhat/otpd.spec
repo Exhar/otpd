@@ -1,6 +1,6 @@
 Summary:	OTP token authentication daemon
 Name:		otpd
-Version:	3.2.1
+Version:	3.2.2
 Release:	1
 License:	GPLv2+
 Group:		System Environment/Daemons
@@ -79,10 +79,10 @@ fi
 %{_mandir}/*/*
 
 %changelog
-* Thu Nov 19 2009 Giuseppe Paterno' <gpaterno@redhat.com>
+* Thu Nov 19 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.1-1
 - Cleaned up some code (failover_thread.c and resynctool.c) to comply with strict compiling
 
-* Mon Nov 16 2009 Giuseppe Paterno' <gpaterno@redhat.com>
+* Mon Nov 16 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.1-1
 - Polished for the EPEL repository, first release in fedoraproject
 
 * Mon Feb 11 2008 Frank Cusack <frank@tri-dsystems.com> 3.1.0-1
