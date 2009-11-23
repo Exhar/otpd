@@ -1,6 +1,6 @@
 Summary:	OTP token authentication daemon
 Name:		otpd
-Version:	3.2.3
+Version:	3.2.4
 Release:	1
 License:	GPLv2+
 Group:		System Environment/Daemons
@@ -41,6 +41,9 @@ mkdir -p $RPM_BUILD_ROOT%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
 echo 'OPTIONS=""' > $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 chmod 0644 $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+# Create an empty otppasswd file
+[ ! -f $RPM_BUILD_ROOT/etc/otppasswd ] && echo "" > $RPM_BUILD_ROOT/etc/otppasswd
+chmod 0600 $RPM_BUILD_ROOT/etc/otppasswd
 # create the plugin socket directory
 mkdir -p -m 0755 $RPM_BUILD_ROOT/var/run/%{name}
 # schema
@@ -72,6 +75,7 @@ fi
 %doc NEWS README README.API README.LICENSE
 %dir /var/run/%{name}
 %attr(0600, root, root) %config(noreplace) /etc/%{name}.conf
+%attr(0600, root, root) %config(noreplace) /etc/otppasswd.conf
 %config(noreplace) /etc/sysconfig/%{name}
 %{_initrddir}/%{name}
 %{_sbindir}/*
@@ -79,6 +83,12 @@ fi
 %{_mandir}/*/*
 
 %changelog
+* Thu Nov 20 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.4-1
+- Fixed man pages installation and creation of empty otppasswd
+
+* Thu Nov 20 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.3-1
+- Fixed 32-bit/64-bit issue in bitmanip.h
+
 * Thu Nov 20 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.2-1
 - Fixed man pages to reflect the fork
 
