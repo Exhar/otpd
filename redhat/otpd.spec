@@ -75,7 +75,7 @@ fi
 %doc NEWS README README.API README.LICENSE
 %dir /var/run/%{name}
 %attr(0600, root, root) %config(noreplace) /etc/%{name}.conf
-%attr(0600, root, root) %config(noreplace) /etc/otppasswd.conf
+%attr(0600, root, root) %config(noreplace) /etc/otppasswd
 %config(noreplace) /etc/sysconfig/%{name}
 %{_initrddir}/%{name}
 %{_sbindir}/*
