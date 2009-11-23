@@ -115,7 +115,7 @@ C<x99-d7>.
 
 =head1 SEE ALSO
 
-otpd(8), README
+otpd(8), resynctool(8), README
 
 =head1 URL
 
