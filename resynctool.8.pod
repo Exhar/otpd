@@ -22,6 +22,8 @@ resynctool -1 I<otp1> -2 I<otp2> [options]
 
 =item B<-f> I<counter>	final I<counter> value to test
 
+=item B<-d>			debug switch
+
 =back
 
 =head1 DESCRIPTION
@@ -104,6 +106,10 @@ The final (decimal) counter value to test.  By default, B<resynctool>
 will test 65536 values before giving up.  If the first character of
 I<counter> is C<+> (plus), instead of using I<counter> as an absolute
 value it will be added to the initial value.
+
+=item B<-d>
+
+Activate debug output (ex: the counters)
 
 =back
 

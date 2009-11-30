@@ -1,7 +1,7 @@
 Summary:	OTP token authentication daemon
 Name:		otpd
 Version:	3.2.4
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System Environment/Daemons
 URL:		http://otpd.googlecode.com/
@@ -41,6 +41,9 @@ mkdir -p $RPM_BUILD_ROOT%{_initrddir}
 mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
 echo 'OPTIONS=""' > $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 chmod 0644 $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+# Create the state directory
+mkdir -p $RPM_BUILD_ROOT/etc/otpstate
+chmod 0700 $RPM_BUILD_ROOT/etc/otpstate
 # Create an empty otppasswd file
 [ ! -f $RPM_BUILD_ROOT/etc/otppasswd ] && echo "" > $RPM_BUILD_ROOT/etc/otppasswd
 chmod 0600 $RPM_BUILD_ROOT/etc/otppasswd
@@ -74,6 +77,7 @@ fi
 %defattr(-, root, root)
 %doc NEWS README README.API README.LICENSE
 %dir /var/run/%{name}
+%dir /etc/otpstate/
 %attr(0600, root, root) %config(noreplace) /etc/%{name}.conf
 %attr(0600, root, root) %config(noreplace) /etc/otppasswd
 %config(noreplace) /etc/sysconfig/%{name}

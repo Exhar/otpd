@@ -34,7 +34,7 @@ extern char *optarg;
 static void
 usage(const char *progname)
 {
-  fprintf(stderr, "usage: %s -1 <otp1> -2 <otp2> [-u <user>] [-k <key>] [-c <challenge>] [-i <counter>] [-f <counter>]\n", progname);
+  fprintf(stderr, "usage: %s -1 <otp1> -2 <otp2> [-u <user>] [-k <key>] [-c <challenge>] [-i <counter>] [-f <counter>] [-d]\n", progname);
   exit(1);
 }
 
@@ -215,9 +215,10 @@ main(int argc, char *argv[])
   for (counter = initial; counter < final; ++counter) {
     c2c(counter, challenge);
     hotp(challenge, keyblock, response);
-//#if 0
-    (void) printf("%llu: %s\n", (long long unsigned int) counter, response);
-//#endif
+   
+    if (debug == 1)
+       (void) printf("%llu: %s\n", (long long unsigned int) counter, response);
+
     if (!strcmp((char *) response, pass1)) {
       if (debug)
         (void) printf("matched %s at counter=%llu\n", pass1, (long long unsigned int) counter);

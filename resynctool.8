@@ -132,7 +132,7 @@
 .\" ========================================================================
 .\"
 .IX Title "resynctool 8"
-.TH resynctool 8 "2008-02-11" "otpd 3.2.1" " "
+.TH resynctool 8 "2008-02-11" "otpd 3.2.4" " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -157,6 +157,8 @@ resynctool \-1 \fIotp1\fR \-2 \fIotp2\fR [options]
 .IX Item "-i counter	initial counter value to test"
 .IP "\fB\-f\fR \fIcounter\fR	final \fIcounter\fR value to test" 4
 .IX Item "-f counter	final counter value to test"
+.IP "\fB\-d\fR			debug switch" 4
+.IX Item "-d			debug switch"
 .PD
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
@@ -233,6 +235,9 @@ The final (decimal) counter value to test.  By default, \fBresynctool\fR
 will test 65536 values before giving up.  If the first character of
 \&\fIcounter\fR is \f(CW\*(C`+\*(C'\fR (plus), instead of using \fIcounter\fR as an absolute
 value it will be added to the initial value.
+.IP "\fB\-d\fR" 4
+.IX Item "-d"
+Activate debug output (ex: the counters)
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 \&\fIotpd\fR\|(8), \s-1RFC\s0 4226
