@@ -1,6 +1,6 @@
 Summary:	OTP token authentication daemon
 Name:		otpd
-Version:	3.2.5
+Version:	3.2.6
 Release:	2
 License:	GPLv2+
 Group:		System Environment/Daemons
@@ -70,7 +70,7 @@ fi
 %postun
 # Upgrade
 if [ $1 -ge 1 ]; then
-  /sbin/service %{name} restart
+  /sbin/service %{name} condrestart
 fi
 
 %files
@@ -87,6 +87,9 @@ fi
 %{_mandir}/*/*
 
 %changelog
+* Thu Nov 20 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.5-2
+- Changed resynctool to allow debug output. Fixed also man pages.
+
 * Thu Nov 20 2009 Giuseppe Paterno' <gpaterno@redhat.com> 3.2.4-1
 - Fixed man pages installation and creation of empty otppasswd
 

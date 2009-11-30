@@ -38,8 +38,15 @@ case "$1" in
 	stop
 	start
 	;;
+  condrestart)
+        if [ -e /var/lock/subsys/otpd ]; then
+            stop
+            sleep 3
+            start
+        fi
+	;;
   *)
-	echo $"Usage: $0 {start|stop|restart}"
+	echo $"Usage: $0 {start|stop|restart|condrestart}"
 	exit 1
 esac
 
