@@ -38,13 +38,18 @@ case "$1" in
 	stop
 	start
 	;;
-  condrestart)
+  condrestart|try-restart)
         if [ -e /var/lock/subsys/otpd ]; then
             stop
             sleep 3
             start
         fi
 	;;
+  status)
+        status otpd
+        RETVAL=$?
+        ;;
+
   *)
 	echo $"Usage: $0 {start|stop|restart|condrestart}"
 	exit 1

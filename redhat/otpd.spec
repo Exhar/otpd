@@ -1,11 +1,10 @@
 Summary:	OTP token authentication daemon
 Name:		otpd
-Version:	3.2.6
-Release:	2
+Version:	3.2.5
+Release:	%dist
 License:	GPLv2+
 Group:		System Environment/Daemons
 URL:		http://otpd.googlecode.com/
-Packager:	Giuseppe Paterno' <gpaterno@redhat.com>
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 
 Source:		http://otpd.googlecode.com/files/%{name}-%{version}.tar.gz
@@ -45,7 +44,7 @@ chmod 0644 $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 mkdir -p $RPM_BUILD_ROOT/etc/otpstate
 chmod 0700 $RPM_BUILD_ROOT/etc/otpstate
 # Create an empty otppasswd file
-[ ! -f $RPM_BUILD_ROOT/etc/otppasswd ] && echo "" > $RPM_BUILD_ROOT/etc/otppasswd
+touch $RPM_BUILD_ROOT/etc/otppasswd
 chmod 0600 $RPM_BUILD_ROOT/etc/otppasswd
 # create the plugin socket directory
 mkdir -p -m 0755 $RPM_BUILD_ROOT/var/run/%{name}
@@ -70,7 +69,7 @@ fi
 %postun
 # Upgrade
 if [ $1 -ge 1 ]; then
-  /sbin/service %{name} condrestart
+  /sbin/service %{name} restart
 fi
 
 %files
