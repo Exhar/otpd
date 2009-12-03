@@ -1,7 +1,7 @@
 Summary:	OTP token authentication daemon
 Name:		otpd
 Version:	3.2.5
-Release:	%dist
+Release:	1%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 URL:		http://otpd.googlecode.com/
