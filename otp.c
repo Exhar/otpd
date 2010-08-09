@@ -116,6 +116,7 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
   }
 
   /* find the correct cardops module */
+  user->cardops = NULL;
   for (i = 0; cardops[i].prefix; i++) {
     if (!strncasecmp(cardops[i].prefix, user->card, cardops[i].plen)) {
       user->cardops = &cardops[i];
