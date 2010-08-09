@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/otp.c#1 $
+ * $Id$
  *
  * Passcode verification functions for otpd.
  *
@@ -24,7 +24,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id: //trid/release/otpd-3.1.0/otp.c#1 $")
+RCSID("$Id$")
 
 #if 0
 #if defined(__linux__) && !defined(_GNU_SOURCE)

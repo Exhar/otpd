@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: //trid/release/otpd-3.1.0/config.l#1 $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id: //trid/release/otpd-3.1.0/config.l#1 $")
+RCSID("$Id$")
 
 #include "y.tab.h"
 #include "extern.h"

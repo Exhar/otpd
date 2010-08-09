@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/state.h#1 $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define STATE_H
 
 #include "ident.h"
-RCSIDH(state_h, "$Id: //trid/release/otpd-3.1.0/state.h#1 $")
+RCSIDH(state_h, "$Id$")
 
 #include "extern.h"
 

@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/userops/ldap.h#1 $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #define USEROPS_LDAP_H
 
 #include "../ident.h"
-RCSIDH(userops_ldap_h, "$Id: //trid/release/otpd-3.1.0/userops/ldap.h#1 $")
+RCSIDH(userops_ldap_h, "$Id$")
 
 #include <lber.h>
 #include <ldap.h>

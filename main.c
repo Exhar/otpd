@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/main.c#1 $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id: //trid/release/otpd-3.1.0/main.c#1 $")
+RCSID("$Id$")
 
 #ifndef _POSIX_PTHREAD_SEMANTICS
 #define _POSIX_PTHREAD_SEMANTICS	/* Solaris sigwait() */

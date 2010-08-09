@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/helix.h#1 $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define HELIX_H
 
 #include "ident.h"
-RCSIDH(helix_h, "$Id: //trid/release/otpd-3.1.0/helix.h#1 $")
+RCSIDH(helix_h, "$Id$")
 
 #include <inttypes.h>
 #include "extern.h"

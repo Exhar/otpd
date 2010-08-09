@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/main.h#1 $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define MAIN_H
 
 #include "ident.h"
-RCSIDH(main_h, "$Id: //trid/release/otpd-3.1.0/main.h#1 $")
+RCSIDH(main_h, "$Id$")
 
 static void sig_init(void);
 static void daemonize(int);

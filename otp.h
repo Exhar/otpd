@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/otp.h#1 $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define OTP_H
 
 #include "ident.h"
-RCSIDH(otp_h, "$Id: //trid/release/otpd-3.1.0/otp.h#1 $")
+RCSIDH(otp_h, "$Id$")
 
 #include <sys/types.h>
 

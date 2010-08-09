@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/bitmanip.h#1 $
+ * $Id$
  *
  * Copyright 2005-2008 TRI-D Systems, Inc.
  * All Rights Reserved.
@@ -21,7 +21,7 @@
 #define BITMANIP_H
 
 #include "ident.h"
-RCSIDH(bitmanip_h, "$Id: //trid/release/otpd-3.1.0/bitmanip.h#1 $")
+RCSIDH(bitmanip_h, "$Id$")
 
 #include <inttypes.h>
 

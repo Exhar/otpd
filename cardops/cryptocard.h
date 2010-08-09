@@ -1,5 +1,5 @@
 /*
- * $Id: //trid/release/otpd-3.1.0/cardops/cryptocard.h#1 $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define CARDOPS_CRYPTOCARD_H
 
 #include "../ident.h"
-RCSIDH(cardops_cryptocard_h, "$Id: //trid/release/otpd-3.1.0/cardops/cryptocard.h#1 $")
+RCSIDH(cardops_cryptocard_h, "$Id$")
 
 #include <inttypes.h>
 #include <sys/types.h>
