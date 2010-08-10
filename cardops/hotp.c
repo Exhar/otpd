@@ -75,15 +75,11 @@ hotp_keystring2key(user_t *user, state_t *state)
 {
   size_t l = strlen(user->keystring);
 
-  /* 128-bit or 160-bit key */
-  if (l == 32) {
-    state->scratch1 = 16;	/* save keylen for hotp_response() */
-  } else if (l == 40) {
-    state->scratch1 = 20;	/* save keylen for hotp_response() */
-  } else {
+  /* min 128-bit key */
+  if (l < 32)
     return -1;
-  }
 
+  state->scratch1 = l/2;	/* save keylen for hotp_response() */
   return a2nx(user->keystring, user->key, state->scratch1);
 }
 

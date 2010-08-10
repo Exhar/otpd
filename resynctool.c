@@ -98,9 +98,9 @@ keystring2keyblock(const char *keystring, unsigned char keyblock[])
 {
   size_t l = strlen(keystring);
 
-  /* 160-bit key with optional line ending */
-  if ((l & ~1) != 40)
-    return 1;
+  /* up to 256-bit key with optional line ending */
+  if ((l & ~1) > 64)
+    return -1;
 
   return a2x(keystring, keyblock);
 }
@@ -116,7 +116,7 @@ x2a(char s[17], unsigned char challenge[8])
 }
 
 static void
-hotp(unsigned char challenge[], unsigned char keyblock[],
+hotp(unsigned char challenge[], unsigned char keyblock[], int keylen,
      unsigned char response[])
 {
   uint32_t dbc;		/* "dynamic binary code" from HOTP draft */
@@ -124,7 +124,7 @@ hotp(unsigned char challenge[], unsigned char keyblock[],
   unsigned md_len;
 
   /* 1. hmac */
-  (void) HMAC(EVP_sha1(), keyblock, 20, challenge, 8, md, &md_len) ;
+  (void) HMAC(EVP_sha1(), keyblock, keylen, challenge, 8, md, &md_len);
 
   /* 2. the truncate step is unnecessarily complex */
   {
@@ -164,10 +164,11 @@ main(int argc, char *argv[])
   char *pass2 = NULL;
   unsigned char challenge[8];
   unsigned char response[7];
-  unsigned char keyblock[20];
+  unsigned char keyblock[32];
   uint64_t counter;
   uint64_t initial = 0;
   uint64_t final = 0;
+  int keylen;
 
   int debug = 0;
 
@@ -209,12 +210,16 @@ main(int argc, char *argv[])
   if (!final)
     final = initial + 65536;
 
-  (void) keystring2keyblock(keystring, keyblock);
+  keylen = keystring2keyblock(keystring, keyblock);
+  if (keylen == -1) {
+    (void) fprintf(stderr, "%s: key is invalid\n", argv[0]);
+    exit(1);
+  }
   (void) memset(challenge, 0, 8);
 
   for (counter = initial; counter < final; ++counter) {
     c2c(counter, challenge);
-    hotp(challenge, keyblock, response);
+    hotp(challenge, keyblock, keylen, response);
    
     if (debug == 1)
        (void) printf("%llu: %s\n", (long long unsigned int) counter, response);
@@ -225,7 +230,7 @@ main(int argc, char *argv[])
 
       /* matched first pass, look for 2nd */
       c2c(++counter, challenge);
-      hotp(challenge, keyblock, response);
+      hotp(challenge, keyblock, keylen, response);
       if (!strcmp((char *) response, pass2)) {
         char s[17];
 
