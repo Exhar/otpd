@@ -366,7 +366,7 @@ gsmd(const config_t *config, const user_t *user, state_t *state,
     }
 
     if ((size_t) rlen < HELIX_NONCE_LEN + 3+ulen + HELIX_MAC_LEN) {
-      mlog(LOG_ERR, "%s: chiphertext length error", caller);
+      mlog(LOG_ERR, "%s: ciphertext length error", caller);
       return -1;
     }
 
