@@ -78,7 +78,6 @@ AC_C_CONST
 AC_HEADER_STDC
 AC_CHECK_HEADER(inttypes.h, ,AC_MSG_ERROR(please update your system))
 AC_CHECK_HEADER(openssl/md4.h, ,AC_MSG_ERROR(unable to find openssl headers))
-AC_CHECK_HEADER(stropts.h, DEFINES="$DEFINES -DHAVE_STROPTS_H")
 
 ##
 ## Checks for libraries.

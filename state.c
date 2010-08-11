@@ -35,7 +35,7 @@ RCSID("$Id$")
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <unistd.h>
-#include <stropts.h>
+//#include <stropts.h>
 #ifdef __sun__
 /* FIONBIO */
 #define BSD_COMP
