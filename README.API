@@ -262,7 +262,7 @@ It is not necessary to already be familiar with the source code.
    (even before it daemonizes).  At the time that userops_foo_init() runs,
    we can't easily determine if otpd is being run as a daemon.
 
-   Each userops module has to implement two methods, as follows.
+   Each userops module has to implement three methods, as follows.
 
    void init1(const config_t *config):
      This is called once at startup, to do one-time initialization tasks.
