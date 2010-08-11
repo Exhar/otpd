@@ -33,7 +33,7 @@ RCSID("$Id$")
 #include <sys/un.h>	/* sockaddr_un */
 #include <sys/types.h>
 #include <unistd.h>
-//#include <stropts.h>
+#include <stropts.h>
 #ifdef __sun__
 #define BSD_COMP
 #endif
