@@ -109,7 +109,7 @@ value it will be added to the initial value.
 
 =item B<-d>
 
-Activate debug output (ex: the counters)
+Activate debug output (eg: the counters)
 
 =back
 
