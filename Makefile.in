@@ -13,8 +13,8 @@ INSTALL_DATA = @INSTALL_DATA@
 
 DEFINES = @DEFINES@ -DVERSION=\"@PACKAGE_VERSION@\"
 # fix some stupidity
-DEFINES += -Wall -Wp,-U_FORTIFY_SOURCE -U_FORTIFY_SOURCE
-WARNINGS = -Wshadow -Wsign-compare -Werror
+DEFINES += -Wp,-U_FORTIFY_SOURCE -U_FORTIFY_SOURCE
+WARNINGS = -Wall -Wshadow -Wsign-compare -Werror
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
@@ -22,7 +22,6 @@ LIBS = @LIBS@ @SOCKET_LIBS@
 SOCKET_LIBS = @SOCKET_LIBS@
 
 prefix = @prefix@
-datarootdir = @datarootdir@
 exec_prefix = @exec_prefix@
 sbindir = @sbindir@
 libdir = @libdir@
