@@ -21,7 +21,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id$")
+RCSID("$Id: )
 
 #ifndef _POSIX_PTHREAD_SEMANTICS
 #define _POSIX_PTHREAD_SEMANTICS	/* Solaris sigwait() */

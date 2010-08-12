@@ -24,7 +24,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id$")
+RCSID("$Id: )
 
 #if 0
 #if defined(__linux__) && !defined(_GNU_SOURCE)

@@ -21,7 +21,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id$")
+RCSID("$Id: )
 
 #ifdef HAVE_ATOMIC_H
 #include <atomic.h>

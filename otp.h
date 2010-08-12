@@ -24,7 +24,7 @@
 #define OTP_H
 
 #include "ident.h"
-RCSIDH(otp_h, "$Id$")
+RCSIDH(otp_h, "$Id: )
 
 #include <sys/types.h>
 

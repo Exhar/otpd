@@ -21,7 +21,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id$")
+RCSID("$Id: )
 
 #include <inttypes.h>
 #include <stdio.h>

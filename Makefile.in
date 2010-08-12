@@ -29,11 +29,7 @@ mandir = @mandir@
 sysconfdir = /etc
 srcdir = @srcdir@
 
-USE_LDAP = @USE_LDAP@
-LDAP_DIR = @LDAP_DIR@
 LDAP_LIBS = @LDAP_LIBS@
-LIBLDAP_LA = $(LDAP_DIR)/libraries/libldap/libldap.la
-LIBLBER_LA = $(LDAP_DIR)/libraries/liblber/liblber.la
 
 CONFIG_SRCS = scanner.c y.tab.c
 USEROPS_SRCS = $(wildcard userops/*.c)
@@ -95,18 +91,9 @@ install-resynctool: resynctool
 
 distclean: clean
 	rm -rf Makefile config.log config.status autom4te.cache redhat/otpd.init solaris/manifest
-ifeq ($(USE_LDAP), included)
-	$(MAKE) -C $(LDAP_DIR)/libraries SUBDIRS="liblutil liblber liblunicode libldap" veryclean
-	$(MAKE) -C $(LDAP_DIR) SUBDIRS="include" veryclean
-	@rm -f $(LDAP_DIR)/junk.c
-endif
 
 clean:
 	rm -f otpd $(OBJS) otpauth otpauth.o resynctool resynctool.o $(patsubst %.c,%.o,$(CARDOPS_SRCS))
-ifeq ($(USE_LDAP), included)
-	$(MAKE) -C $(LDAP_DIR)/libraries SUBDIRS="liblutil liblber liblunicode libldap" $@
-	$(MAKE) -C $(LDAP_DIR) SUBDIRS="include" $@
-endif
 
 common_headers = extern.h
 specific_headers = $(filter-out $(common_headers),$(wildcard *.h cardops/*.h userops/*.h))
@@ -124,21 +111,6 @@ $(CARDOPS_SRCS): cardops.h otp.h
 helix.o: helix.c $(common_headers)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(WARNINGS) -fno-strict-aliasing -c -o $@ $<
 
-$(LIBLDAP_LA):
-	@# libldap needs ldap_config.h, which does not have a proper dependency
-	$(MAKE) -C $(LDAP_DIR)/include
-	@# libldap needs the others, but again no proper dependencies
-	$(MAKE) -C $(LDAP_DIR)/libraries SUBDIRS="liblutil liblber liblunicode libldap"
-
-$(LIBLBER_LA):
-	@# liblber needs ldap_config.h, which does not have a proper dependency
-	$(MAKE) -C $(LDAP_DIR)/include
-	@# libldap needs liblutil, but again no proper dependency
-	$(MAKE) -C $(LDAP_DIR)/libraries SUBDIRS="liblutil liblber"
-
-ifeq ($(USE_LDAP), included)
-userops/ldap.o: $(LIBLDAP_LA) $(LIBLBER_LA) userops/ldap.c $(common_headers)
-endif
 scanner.o: scanner.c $(common_headers)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(WARNINGS) -Wno-implicit -Wno-unused-function -Wno-unused-label -Wno-sign-compare -c -o $@ $<
 # have to rename lex.yy.c if we want to distribute it,
@@ -159,10 +131,8 @@ otppasswd.5: otppasswd.5.pod
 resynctool.8: resynctool.8.pod
 	pod2man -d $(PACKAGE_DATE) -s 8 -n resynctool -r "otpd $(PACKAGE_VERSION)" -c " " $< > $@
 
-platforms = i386-pc-solaris2.10 i686-pc-linux-gnu sparc-sun-solaris2.10
-platforms += i386-redhat-linux-gnu
-tar: scanner.c y.tab.c y.tab.h $(foreach bin,$(platforms),cardops/trid.o.$(bin)) distclean
-	$(TAR) -C .. --owner=root --group=root --exclude=trid.c --exclude=trid.h  -zcf ../$(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.gz $(PACKAGE_NAME)-$(PACKAGE_VERSION)
+tar: scanner.c y.tab.c y.tab.h distclean
+	$(TAR) -C .. --owner=root --group=root -zcf ../$(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.gz $(PACKAGE_NAME)-$(PACKAGE_VERSION)
 
 srctar: scanner.c y.tab.c y.tab.h $(MAN) distclean
 	test -d ../$(PACKAGE_NAME)-$(PACKAGE_VERSION) || \

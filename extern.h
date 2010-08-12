@@ -24,7 +24,7 @@
 #define EXTERN_H
 
 #include "ident.h"
-RCSIDH(extern_h, "$Id$")
+RCSIDH(extern_h, "$Id: )
 
 /* config file */
 #define OTPD_DEFAULT_CF "/etc/otpd.conf"

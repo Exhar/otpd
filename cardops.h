@@ -24,7 +24,7 @@
 #define CARDOPS_H
 
 #include "ident.h"
-RCSIDH(cardops_h, "$Id$")
+RCSIDH(cardops_h, "$Id: )
 
 #include <inttypes.h>
 #include <sys/types.h>

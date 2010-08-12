@@ -21,7 +21,7 @@
 #define BITMANIP_H
 
 #include "ident.h"
-RCSIDH(bitmanip_h, "$Id$")
+RCSIDH(bitmanip_h, "$Id: )
 
 #include <inttypes.h>
 

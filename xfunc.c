@@ -21,7 +21,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id$")
+RCSID("$Id: )
 
 #include <arpa/inet.h>	/* inet_ntoa() */
 #include <errno.h>

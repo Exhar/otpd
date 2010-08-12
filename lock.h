@@ -24,7 +24,7 @@
 #define LOCK_H
 
 #include "ident.h"
-RCSIDH(lock_h, "$Id$")
+RCSIDH(lock_h, "$Id: )
 
 #include <pthread.h>    /* pthread_mutex_t */
 #include "extern.h"

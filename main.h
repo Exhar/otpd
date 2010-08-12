@@ -24,7 +24,7 @@
 #define MAIN_H
 
 #include "ident.h"
-RCSIDH(main_h, "$Id$")
+RCSIDH(main_h, "$Id: )
 
 static void sig_init(void);
 static void daemonize(int);

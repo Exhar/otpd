@@ -24,7 +24,7 @@
 #define STATE_H
 
 #include "ident.h"
-RCSIDH(state_h, "$Id$")
+RCSIDH(state_h, "$Id: )
 
 #include "extern.h"
 

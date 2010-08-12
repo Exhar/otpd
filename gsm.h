@@ -21,7 +21,7 @@
 #define GSM_H
 
 #include "ident.h"
-RCSIDH(gsm_h, "$Id$")
+RCSIDH(gsm_h, "$Id: )
 
 /*
  * NOTE: This file must be synced between otpd and gsmd.

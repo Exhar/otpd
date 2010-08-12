@@ -24,7 +24,7 @@
 #define HELIX_H
 
 #include "ident.h"
-RCSIDH(helix_h, "$Id$")
+RCSIDH(helix_h, "$Id: )
 
 #include <inttypes.h>
 #include "extern.h"

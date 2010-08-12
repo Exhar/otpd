@@ -61,7 +61,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id$")
+RCSID("$Id: )
 
 #include <sys/types.h>
 #include "otp.h"	/* OTP_MAX_CHALLENGE_LEN */
