@@ -1,0 +1,232 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use vars qw(%SYNTAX $ldomain %option);
+use Getopt::Std;
+
+# SYNTAX/EQUALITY map into attributeSyntax/oMSyntax; we ignore SUBSTR
+# too bad AD sucks and we can't map {IA5,case-insensitive}
+# so we must use DirectoryStrings (unicode) to get case-insensitivity in AD
+@{$SYNTAX{'DirectoryString'}{'caseIgnoreMatch'}} = ("2.5.5.12", "64");
+@{$SYNTAX{'INTEGER'}{'integerMatch'}}            = ("2.5.5.9", "2");
+
+sub attributetype
+{
+  my $line = shift;
+  my $base = "cn=Schema,cn=Configuration,$ldomain";
+  return unless ($line =~ /TRID:([0-9.]+) NAME '(\w+)'$/);
+  my $oid  = "1.3.6.1.4.1.26782.$1";
+  my $name = $2;
+  my $singleValued = "FALSE";
+  my ($desc, $equality, $syntax) = ("", "", "");
+  while ($line = <>) {
+    chomp($line);
+    last if ($line =~ /^\s+\)$/);
+    if ($line =~ /^\s+DESC '([^']+)'$/) {
+      $desc = $1;
+    } elsif ($line =~ /^\s+EQUALITY (\w+)$/) {
+      $equality = $1;
+    } elsif ($line =~ /^\s+SYNTAX (\w+)$/) {
+      $syntax = $1;
+    } elsif ($line =~ /^\s+SINGLE-VALUE/) {
+      $singleValued = "TRUE";
+    }
+  }
+  unless (exists $SYNTAX{$syntax}{$equality}) {
+    die "$0: invalid syntax for $name\n";
+  }
+
+  print "dn: cn=$name,$base\n";
+  print "changetype: add\n";
+  print "attributeID: $oid\n";
+  print "objectClass: attributeSchema\n";
+  print "lDAPDisplayName: $name\n";
+  print "adminDescription: $desc\n";
+  print "attributeSyntax: $SYNTAX{$syntax}{$equality}[0]\n";
+  print "oMSyntax: $SYNTAX{$syntax}{$equality}[1]\n";
+  print "isSingleValued: $singleValued\n";
+  if ($name =~ /(Key[\d])|(PIN)/i) {
+    print "searchFlags: 128\n";	# confidential, requires WIN2003 SP1+
+  } else {
+    print "searchFlags: 0\n";
+  }
+  print "\n";
+}
+
+sub objectclass
+{
+  my $line = shift;
+  my $base = "cn=Schema,cn=Configuration,$ldomain";
+  return unless ($line =~ /TRID:([0-9.]+) NAME '(\w+)' SUP top (STRUCTURAL|AUXILIARY)$/);
+  my $oid   = "1.3.6.1.4.1.26782.$1";
+  my $name  = $2;
+  my $class = $3 eq "STRUCTURAL" ? "1" : "3";
+  my $desc  = "";
+  my @must  = ();
+  my @may   = ();
+  while ($line = <>) {
+    chomp($line);
+    last if ($line =~ /^\s+\)$/);
+    if ($line =~ /^\s+DESC '([^']+)'$/) {
+      $desc = $1;
+    } elsif ($line =~ /^\s+MUST /) {
+      @must = parsemust($line);
+    } elsif ($line =~ /^\s+MAY /) {
+      @may = parsemust($line);
+    }
+  }
+
+  print "dn: cn=$name,$base\n";
+  print "changetype: add\n";
+  print "governsID: $oid\n";
+  print "objectClass: classSchema\n";
+  print "objectClassCategory: $class\n";
+  print "possSuperiors: organizationalUnit\n";
+  print "possSuperiors: container\n";
+  print "lDAPDisplayName: $name\n";
+  print "subClassOf: top\n";
+  print "adminDescription: $desc\n";
+  foreach (@must) {
+    # systemMayContain to support forest functional mode != 2003
+    print "systemMustContain: $_\n";
+  }
+  foreach (@may) {
+    print "systemMayContain: $_\n";
+  }
+  print "\n";
+}
+
+sub parsemust
+{
+  my $line = shift;
+  my @attr = ();
+  my @line = split(/\s+/, $line);
+  shift @line;	# empty value before first word
+  shift @line;	# MUST|MAY
+  if ($line[0] ne "(") {
+    # single value only
+    return ($line[0]);
+  } else {
+    my $attr = "";
+    while ($attr ne ")") {
+      $attr = shift @line;
+      last if ($attr eq ")");
+      next if ($attr eq "(");
+      next if ($attr eq "\$");
+      unless (defined($attr)) {
+        chomp($line = <>);
+        @line = split(/\s+/, $line);
+        next;
+      }
+      next if ($attr eq "");
+      push @attr, $attr;
+    }
+    return @attr;
+  }
+}
+
+sub usage
+{
+  # -l is undocumented
+  die "usage: $0 -s <schema master> -D <binddn> -w <bindpw> [-d <domain>] <schema>\n";
+}
+
+sub main
+{
+  my $user;
+
+  getopts("s:D:w:d:l", \%option);
+  if (! scalar(@ARGV)) {
+    usage();
+  }
+
+  if (exists($option{d})) {
+    my @domain = split(/\./, $option{d});
+    $ldomain = join(",", map { "dc=" . $_ } @domain);
+  } else {
+    usage() unless (exists($option{s}));
+    # e.g.
+    #   namingContexts: DC=myself,DC=local
+    #   namingContexts: CN=Configuration,DC=myself,DC=local
+    #   namingContexts: CN=Schema,CN=Configuration,DC=myself,DC=local
+    #   namingContexts: DC=DomainDnsZones,DC=myself,DC=local
+    #   namingContexts: DC=ForestDnsZones,DC=myself,DC=local
+    # hopefully even a long-running domain returns these in the order
+    # created (so domain name is necessarily first)
+    $ldomain = `ldapsearch -1 -x -h $option{s} -b '' -s base '' namingContexts |
+               awk '/namingContexts:/ { print \$2 }' | head -1`;
+    chomp($ldomain);
+    my @domain = split(/,/, $ldomain);
+    # can't get this to work unless map and assignment are separate statements
+    map { s/^dc=//i } @domain;
+    $option{d} = join(".", @domain);
+  }
+
+  unless (exists($option{l})) {
+    if (exists($option{D})) {
+      if ($option{D} =~ /\@/) {
+        $user = "$option{D}";
+      } else {
+        $user = "$option{D}\@$option{d}";
+      }
+    } else {
+      usage();
+    }
+    unless (exists($option{w})) {
+      usage();
+    }
+    if ($option{w} eq "-") {
+      # not foolproof, user could pass "- " and ldapadd would prompt
+      die("$0: must supply bind password\n");
+    }
+
+    # verify forest is in 2003 mode, required for dynamic auxiliary classes
+    # NOTE: per http://msdn2.microsoft.com/en-us/library/ms676290.aspx
+    #       the domain functional level does not matter
+    # NOTE: probably wrong for windows server 2008
+    my $v = `ldapsearch -1 -x -h $option{s} -D $user -w $option{w} -b cn=Partitions,cn=Configuration,$ldomain -s base '' msDS-Behavior-Version | tail -1 |
+             cut -d' ' -f2`;
+    # http://support.microsoft.com/kb/322692
+    die "$0: Forest functional level must be Windows Server 2003\n"
+      if ($v != 2);
+
+    open(LDAP, "|ldapadd -h $option{s} -D $user -w $option{w} >/dev/null") ||
+      die "$0: can't spawn ldapadd\n";
+    select LDAP;
+  }
+
+  my $flushed = 0;
+  while (my $line = <>) {
+    chomp($line);
+    if ($line =~ /^attributetype\b/) {
+      attributetype($line);
+    } elsif ($line =~ /^objectclass\b/) {
+      unless ($flushed) {
+        # flush cache so classes can be added
+        print "dn:\n";
+        print "changetype: modify\n";
+        print "add: schemaUpdateNow\n";
+        print "schemaUpdateNow: 1\n";
+        print "\n";
+        $flushed = 1;
+      }
+      objectclass($line);
+    }
+    # otherwise just keep going
+  }
+
+  # flush cache again so classes are visible
+  print "dn:\n";
+  print "changetype: modify\n";
+  print "add: schemaUpdateNow\n";
+  print "schemaUpdateNow: 1\n";
+  print "\n";
+
+  unless (exists($option{l})) {
+    close(LDAP) || die "$0: ldapadd failed\n";
+  }
+
+}
+
+main();
