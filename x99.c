@@ -1,5 +1,5 @@
 /*
- * $Id$x99.c 44 2010-08-12 07:26:04Z frank $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
  */
 
 #include "ident.h"
-RCSID("$Id$)
+RCSID("$Id$")
 
 #include <string.h>
 #include <sys/types.h>

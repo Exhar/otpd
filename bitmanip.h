@@ -1,5 +1,5 @@
 /*
- * $Id$bitmanip.h 44 2010-08-12 07:26:04Z frank $
+ * $Id$
  *
  * Copyright 2005-2008 TRI-D Systems, Inc.
  * All Rights Reserved.
@@ -21,7 +21,7 @@
 #define BITMANIP_H
 
 #include "ident.h"
-RCSIDH(bitmanip_h, "$Id$)
+RCSIDH(bitmanip_h, "$Id$")
 
 #include <inttypes.h>
 

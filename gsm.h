@@ -1,5 +1,5 @@
 /*
- * $Id$gsm.h 44 2010-08-12 07:26:04Z frank $
+ * $Id$
  *
  * Copyright 2005,2006,2008 TRI-D Systems, Inc.
  * All Rights Reserved.
@@ -21,7 +21,7 @@
 #define GSM_H
 
 #include "ident.h"
-RCSIDH(gsm_h, "$Id$)
+RCSIDH(gsm_h, "$Id$")
 
 /*
  * NOTE: This file must be synced between otpd and gsmd.

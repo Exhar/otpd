@@ -1,5 +1,5 @@
 /*
- * $Id$extern.h 44 2010-08-12 07:26:04Z frank $
+ * $Id$
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define EXTERN_H
 
 #include "ident.h"
-RCSIDH(extern_h, "$Id$)
+RCSIDH(extern_h, "$Id$")
 
 /* config file */
 #define OTPD_DEFAULT_CF "/etc/otpd.conf"
