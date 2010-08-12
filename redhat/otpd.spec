@@ -10,9 +10,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 Source:		http://otpd.googlecode.com/files/%{name}-%{version}.tar.gz
 
 BuildRequires:  openssl-devel, openldap-devel
-Requires:	chkconfig
-Requires:	initscripts
-#PreReq: /sbin/chkconfig /sbin/service
+PreReq: /sbin/chkconfig /sbin/service
 
 %description
 OTPD is an authentication server capable of validating OTP tokens
