@@ -17,9 +17,6 @@ AC_ARG_WITH(openssl,
             AS_HELP_STRING([--with-openssl=DIR], [openssl directory]),
             [ CFLAGS="$CFLAGS -I$withval/include"
               LDFLAGS="$LDFLAGS -L$withval/lib$LIB64 -R$withval/lib$LIB64" ])
-# make sure user knows trid isn't available for their platform
-#AC_ARG_WITH(trid,
-#          AS_HELP_STRING([--without-trid], [don't include TRI-D token support]))
 # libldap
 AC_ARG_WITH(included-libldap,
             AS_HELP_STRING([--with-included-libldap], [use included libldap]))
@@ -33,7 +30,7 @@ AC_ARG_WITH(included-libldap,
 # Solaris needs _REENTRANT
 DEFINES="$DEFINES -D_REENTRANT"
 
-# Need to know the target for -gstabs test and trid.o
+# Need to know the target for -gstabs test
 AC_CANONICAL_TARGET
 
 ##
@@ -119,16 +116,6 @@ if test "${ac_cv_search_clock_gettime-no}" != no; then
 fi
 
 AC_CHECK_FUNCS([pset_info], DEFINES="$DEFINES -DHAVE_PSET_INFO")
-
-## use the correct tri-d module
-#if test -f cardops/trid.c ; then
-#  :
-#elif test -f cardops/trid.o.$target ; then
-#  cp cardops/trid.o.$target cardops/trid.o
-#  chmod +w cardops/trid.o
-#elif test "$with_trid" != "no" ; then
-#  AC_MSG_ERROR([TRI-D support for $target not found; use --without-trid to disable])
-#fi
 
 if test "${with_included_libldap+set}" != "set"; then
   # use system ldap by default, but fallback to included ldap
