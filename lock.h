@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id$lock.h 44 2010-08-12 07:26:04Z frank $
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define LOCK_H
 
 #include "ident.h"
-RCSIDH(lock_h, "$Id: )
+RCSIDH(lock_h, "$Id$)
 
 #include <pthread.h>    /* pthread_mutex_t */
 #include "extern.h"

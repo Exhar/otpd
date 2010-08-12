@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id$main.h 44 2010-08-12 07:26:04Z frank $
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define MAIN_H
 
 #include "ident.h"
-RCSIDH(main_h, "$Id: )
+RCSIDH(main_h, "$Id$)
 
 static void sig_init(void);
 static void daemonize(int);

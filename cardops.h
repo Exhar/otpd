@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id$cardops.h 44 2010-08-12 07:26:04Z frank $
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #define CARDOPS_H
 
 #include "ident.h"
-RCSIDH(cardops_h, "$Id: )
+RCSIDH(cardops_h, "$Id$)
 
 #include <inttypes.h>
 #include <sys/types.h>
