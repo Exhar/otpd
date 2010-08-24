@@ -276,7 +276,7 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
   }
   /* get user state */
   if (state_get(config, user, &state) != 0) {
-    mlog(LOG_ERR, "%s: unable to get state for [%s]", __func__, username);
+    /* error already logged */
     rc = OTP_RC_SERVICE_ERR;
     goto auth_done_service_err;
   }

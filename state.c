@@ -96,6 +96,14 @@ state_get_local(const config_t *config, const user_t *user, state_t *state)
       lock_put(state->l.lock);
       return -1;
     }
+  } else {
+    /*
+     * log at NOTICE because otp.c:verify() is going to log failure at NOTICE
+     * also, not a bad idea to make simulauth prominent
+     */
+    mlog(LOG_NOTICE, "%s: authentication already in progress for [%s]",
+         __func__, user->username);
+    return -1;
   }
 
   state->locked = 1;

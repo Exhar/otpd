@@ -72,10 +72,10 @@ find_lock(const char *username, int bucket, ulock_t **lock)
 
   /* walk chain looking for username match */
   for (*lock = lock_chain[bucket].first; *lock != last; *lock = (*lock)->next)
-    if (username == (*lock)->username)
+    if (!strcmp(username, (*lock)->username))
       return 1;
   /* now look at the last node */
-  if (username == (*lock)->username)
+  if (!strcmp(username, (*lock)->username))
     return 1;
 
   /* return the node after the last node (possibly NULL) */
@@ -113,6 +113,8 @@ lock_get(const char *username)
     } else {
       /* existing lock not expired, report error */
       mlog(LOG_INFO, "%s: lock for %s already held", __func__, username);
+      lock = NULL;
+      goto out;
     }
   } else {
     /* no existing lock */
@@ -124,12 +126,13 @@ lock_get(const char *username)
     }
 
     /* lock */
-    lock->username = (char *) username;
+    lock->username = username;
     lock->ltime = now;
     /* new locks are always the last lock */
     lock_chain[bucket].last = lock;
   } /* else not locked */
 
+out:
   /* unlock chain and return */
   xpthread_mutex_unlock(&lock_chain[bucket].mutex);
   return lock;
@@ -147,7 +150,7 @@ lock_put(ulock_t *lock)
   bucket = uhash(lock->username);
   xpthread_mutex_lock(&lock_chain[bucket].mutex);
 
-  lock->username[0] = '\0';
+  lock->username = NULL;
 
   if (lock_chain[bucket].last == lock) {
     /* we're in a good place, just fix up last */

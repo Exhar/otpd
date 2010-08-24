@@ -135,7 +135,7 @@ typedef struct config_t {
 
 #include "gsm.h"
 typedef struct ulock_t {
-  char			*username;
+  const char		*username;
   hrtime_t		ltime;		/* time lock was granted */
   struct ulock_t	*prev;
   struct ulock_t	*next;
