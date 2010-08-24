@@ -48,11 +48,11 @@ RCSIDH(cardops_h, "$Id$")
 #define OTP_CF_LEN4		0x01 << 8  /* length 2^3             */
 #define OTP_CF_LEN		(OTP_CF_LEN0|OTP_CF_LEN1|OTP_CF_LEN2|OTP_CF_LEN3|OTP_CF_LEN4)
 #define OTP_CF_LEN_SHIFT	4          /* convert mask to value */
-/* force rwindow for event+time sync cards (TRI-D) */
-#define OTP_CF_FRW0		0x01 << 9  /* force event window 2^0 */
-#define OTP_CF_FRW1		0x01 << 10 /* force event window 2^1 */
-#define OTP_CF_FRW2		0x01 << 11 /* force event window 2^2 */
-#define OTP_CF_FRW3		0x01 << 12 /* force event window 2^3 */
+/* fixed ewindow/rwindow for event+time sync cards (TRI-D) */
+#define OTP_CF_FRW0		0x01 << 9  /* fixed event window 2^0 */
+#define OTP_CF_FRW1		0x01 << 10 /* fixed event window 2^1 */
+#define OTP_CF_FRW2		0x01 << 11 /* fixed event window 2^2 */
+#define OTP_CF_FRW3		0x01 << 12 /* fixed event window 2^3 */
 #define OTP_CF_FRW		(OTP_CF_FRW0|OTP_CF_FRW1|OTP_CF_FRW2|OTP_CF_FRW3)
 #define OTP_CF_FRW_SHIFT	9          /* convert mask to value  */
 

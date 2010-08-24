@@ -59,8 +59,7 @@ int ncardops = 0;			/* number of cardops modules loaded */
 /* fc (failcondition) shortcuts */
 #define OTP_FC_FAIL_NONE  0	/* no failures */
 #define OTP_FC_FAIL_HARD  1	/* failed hard */
-#define OTP_FC_FAIL_SOFT  2	/* failed soft */
-#define OTP_FC_FAIL_DELAY 6	/* in delay mode (includes FAIL_SOFT) */
+#define OTP_FC_FAIL_SOFT  2	/* failed soft (in delay mode) */
 
 /*
  * Test for passcode validity.
@@ -304,11 +303,12 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
   }
 
   /* set fc (failcondition) */
+  fc = OTP_FC_FAIL_NONE;
   if (config->hardfail && state.failcount >= config->hardfail) {
     /* NOTE: persistent softfail stops working */
     fc = OTP_FC_FAIL_HARD;
   } else if (config->softfail && state.nullstate) {
-    fc = OTP_FC_FAIL_DELAY;
+    fc = OTP_FC_FAIL_SOFT;
   } else if (config->softfail && state.failcount >= config->softfail) {
     uint32_t nextauth;
     int fcount;
@@ -319,9 +319,9 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
      * Once we hit softfail, we introduce a 1m (64s) delay before the user
      * can authenticate.  For each successive failed authentication,
      * we double the delay time, up to a max of 32 "minutes".  While in
-     * the "delay mode" of operation, all authentication ATTEMPTS are
-     * considered failures.  Also, each attempt during the delay period
-     * restarts the clock.
+     * the "delay mode" of operation, all authentication attempts are
+     * considered failures (unless they are valid rwindow resync auths).
+     * Also, each attempt during the delay period restarts the clock.
      *
      * The advantage of a delay instead of a simple lockout is that an
      * attacker can't lock out a user as easily; the user need only wait
@@ -335,12 +335,8 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
     nextauth = state.authtime +
                (fcount > 5 ? 32 << 6 : (1 << fcount) << 6);
     if ((uint32_t) now < nextauth)
-      fc = OTP_FC_FAIL_DELAY;
-    else
       fc = OTP_FC_FAIL_SOFT;
-  } else {
-    fc = OTP_FC_FAIL_NONE;
-  }
+  } /* set fc (failcondition) */
 
   /*
    * Test async response.
@@ -416,9 +412,9 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
           rc = OTP_RC_MAXTRIES;
           goto auth_done;
         }
-        if (fc == OTP_FC_FAIL_DELAY) {
+        if (fc == OTP_FC_FAIL_SOFT) {
           mlog(LOG_NOTICE, "%s: bad async auth for [%s]: "
-                           "valid but in softfail delay (%d/%d failed/max)",
+                           "valid but in softfail (%d/%d failed/max)",
                __func__, username, state.failcount, config->softfail);
           rc = OTP_RC_MAXTRIES;
           goto auth_done;
@@ -448,9 +444,9 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
    * explicitly requested.
    *
    * Note that we always start at the t=0 e=0 window position, even
-   * though we may already know a previous authentication is further
-   * ahead in the window (when in softfail).  This has the effect that
-   * an rwindow softfail override can occur in a sequence like 6,3,4.
+   * though we may already know a previous saved rwindow authentication
+   * is further ahead in the window.  This has the effect that
+   * an rwindow override can occur in a sequence like 6,3,4.
    * That is, the user can always move backwards in the window to
    * restart the rwindow sequence, as long as they don't go beyond
    * (prior to) the last successful authentication.
@@ -460,12 +456,14 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
 
     /* set ending ewin counter */
     if (user->featuremask & OTP_CF_FRW) {
-      /* force rwindow for e+t cards */
+      /* fixed ewindow/rwindow for e+t cards */
       eend = (user->featuremask & OTP_CF_FRW) >> OTP_CF_FRW_SHIFT;
     } else if (user->featuremask & OTP_CF_ES) {
-      /* increase window for softfail+rwindow */
-      if (config->rwindow_size && fc & OTP_FC_FAIL_SOFT)
-        eend = user->rwindow_size ? user->rwindow_size : config->rwindow_size;
+      /* set event window */
+      if (user->rwindow_size)
+        eend = user->rwindow_size;
+      else if (config->rwindow_size)
+        eend = config->rwindow_size;
       else
         eend = config->ewindow_size;
     } else {
@@ -548,62 +546,67 @@ verify(config_t *config, const otp_request_t *request, otp_reply_t *reply)
         nmatch = compare(request, e_response);
         if (!nmatch) {
           if (fc == OTP_FC_FAIL_HARD) {
-            mlog(LOG_NOTICE, "%s: bad sync auth for [%s]: "
+            mlog(LOG_NOTICE, "%s: bad sync auth for [%s] at t:%d e:%d: "
                              "valid but in hardfail (%d/%d failed/max)",
-                 __func__, username, state.failcount, config->hardfail);
+                 __func__, username, t, e, state.failcount, config->hardfail);
+            /* update rwindow candidate in case server config changes */
+            mlog(LOG_DEBUG1, "%s: [%s], rwindow candidate at t:%d e:%d",
+                 __func__, username, t, e);
             rc = OTP_RC_MAXTRIES;
 
-          } else if (fc & OTP_FC_FAIL_SOFT) {
-            /*
-             * rwindow logic
-             */
-
-            /* user can override softfail with 2 consecutive correct auths */
-            if (user->cardops->isconsecutive(user, &state, e)) {
-              /* but not too quickly (NOTE: possible time sync probs) */
-              if ((uint32_t) now <= state.authtime) {
-                mlog(LOG_NOTICE, "%s: softfail override valid for [%s] at "
-                                 "window position t:%d e:%d, but too soon",
-                     __func__, username, t, e);
-                rc = OTP_RC_MAXTRIES;
-                goto auth_done;
-              }
-              mlog(LOG_NOTICE, "%s: softfail override for [%s] at "
-                               "window position t:%d e:%d",
+          } else if (user->cardops->isconsecutive(user, &state, e)) {
+            /* user can always resync with 2 consecutive correct auths ... */
+            if ((uint32_t) now <= state.authtime) {
+              /*
+               * ... but not too quickly.  We rate limit rwindow auths
+               * to 1/s to prevent enabling a brute force guessing attack.
+               * Even though 2 OTPs is much, much harder to guess, without
+               * a rate limit we open things up too much.  For 6 digit
+               * non-biased decimal OTPs, 10^11 guesses are required.  If
+               * I can guess 10^5 OTP/s (easily achievable) it will take
+               * 11.6 days to brute force an account.  If I can guess
+               * 10^6 OTP/s it will take only 1.2 days.  Also, it's MUCH,
+               * MUCH worse if OTP_RC_NEXTPASSCODE feedback (SecurID style)
+               * is given to the user.  Rather than insist that otpd run on
+               * slow hardware, a 1/s rate limit seems ok.  A real user
+               * can't enter OTPs that quickly anyway.
+               * NOTE: This is only a problem for event-based tokens.
+               * NOTE: Possible time sync probs across multiple otpds.
+               */
+              mlog(LOG_NOTICE, "%s: resync valid for [%s] at t:%d e:%d, "
+                               "but too soon",
                    __func__, username, t, e);
-              rc = OTP_RC_OK;
-              goto sync_done;
-            } /* if (passcode is consecutive) */
-
-            /* otherwise ... */
-            if (fc == OTP_FC_FAIL_DELAY) {
-              /* ... user is delayed, save as first of 2 */
+              /* update rwindow candidate */
               mlog(LOG_DEBUG1, "%s: [%s], rwindow candidate at t:%d e:%d",
                    __func__, username, t, e);
               rc = OTP_RC_NEXTPASSCODE;
-              goto sync_done;
             } else {
-              /* ... user has outwaited the delay, check range */
-              if (e > (int) config->ewindow_size) {
-                /* out of range */
-                mlog(LOG_NOTICE, "%s: bad sync auth for [%s]: "
-                                 "valid but in softfail (%d/%d failed/max)",
-                     __func__, username, state.failcount, config->softfail);
-                rc = OTP_RC_MAXTRIES;
-                goto auth_done;
-              } else {
-                /* in range (normal sync mode auth) */
-                rc = OTP_RC_OK;
-                goto sync_done;
-              }
-            } /* else !delayed */
+              mlog(LOG_NOTICE, "%s: rwindow resync for [%s] at t:%d e:%d",
+                   __func__, username, t, e);
+              rc = OTP_RC_OK;
+            }
+
+          } else if (fc == OTP_FC_FAIL_SOFT) {
+            /* user is delayed, just save rwindow candidate  */
+            mlog(LOG_NOTICE, "%s: bad sync auth for [%s]: "
+                             "valid but in softfail (%d/%d failed/max)",
+                 __func__, username, state.failcount, config->softfail);
+            mlog(LOG_DEBUG1, "%s: [%s], rwindow candidate at t:%d e:%d",
+                 __func__, username, t, e);
+            rc = OTP_RC_NEXTPASSCODE;
+
+          } else if (!(user->featuremask & OTP_CF_FRW) &&
+                     e > (int) config->ewindow_size) {
+            /* out of range, just save rwindow candidate  */
+            mlog(LOG_DEBUG1, "%s: [%s], rwindow candidate at t:%d e:%d",
+                 __func__, username, t, e);
+            rc = OTP_RC_NEXTPASSCODE;
 
           } else {
             /* normal sync mode auth */
             rc = OTP_RC_OK;
-          } /* else (!hardfail && !softfail) */
+          }
 
-sync_done:
           /* force resync; this only has an effect if (rc == OTP_RC_OK) */
           resync = 1;
           /* update csd (et al.) on successful auth or rwindow candidate */
