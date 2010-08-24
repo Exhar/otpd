@@ -26,6 +26,7 @@ exec_prefix = @exec_prefix@
 sbindir = @sbindir@
 libdir = @libdir@
 mandir = @mandir@
+datarootdir = @datarootdir@
 sysconfdir = /etc
 srcdir = @srcdir@
 
