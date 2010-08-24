@@ -326,12 +326,8 @@ _xwrite(int fd, const char *buf, size_t len, const char *caller)
 
   while (nwrote < len) {
     if ((n = write(fd, &buf[nwrote], len - nwrote)) == -1) {
-      if (errno == EINTR || errno == EPIPE) {
-        continue;
-      } else {
-        mlog(LOG_ERR, "%s: write(%d): %s", caller, fd, strerror(errno));
-        return -1;
-      }
+      mlog(LOG_ERR, "%s: write(%d): %s", caller, fd, strerror(errno));
+      return -1;
     }
     nwrote += n;
   }

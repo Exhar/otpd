@@ -95,13 +95,9 @@ work_thread(void *arg)
     while (nread < sizeof(request.version)) {
       if ((n = read(config->s, &p[nread],
                     sizeof(request.version) - nread)) == -1) {
-        if (errno == EINTR) {
-          continue;
-        } else {
-          mlog(LOG_ERR, "%s: plugin read (fd=%d): %s", __func__, config->s,
-               strerror(errno));
-          RETURN;
-        }
+        mlog(LOG_ERR, "%s: plugin read (fd=%d): %s", __func__, config->s,
+             strerror(errno));
+        RETURN;
       }
       if (!n) {
         /* EOF */
@@ -115,13 +111,9 @@ work_thread(void *arg)
     if (request.version == 2) {
       while (nread < sizeof(request)) {
         if ((n = read(config->s, &p[nread], sizeof(request) - nread)) == -1) {
-          if (errno == EINTR) {
-            continue;
-          } else {
-            mlog(LOG_ERR, "%s: plugin read (fd=%d): %s", __func__, config->s,
-                 strerror(errno));
-            RETURN;
-          }
+          mlog(LOG_ERR, "%s: plugin read (fd=%d): %s", __func__, config->s,
+               strerror(errno));
+          RETURN;
         }
         if (!n) {
           /* EOF */
@@ -137,13 +129,9 @@ work_thread(void *arg)
 
       while (nread < sizeof(request_v1)) {
         if ((n = read(config->s, &p[nread], sizeof(request_v1) - nread)) == -1){
-          if (errno == EINTR) {
-            continue;
-          } else {
-            mlog(LOG_ERR, "%s: plugin read (fd=%d): %s", __func__, config->s,
-                 strerror(errno));
-            RETURN;
-          }
+          mlog(LOG_ERR, "%s: plugin read (fd=%d): %s", __func__, config->s,
+               strerror(errno));
+          RETURN;
         }
         if (!n) {
           /* EOF */
@@ -297,13 +285,9 @@ send_reply:
 
     while (nwrote < sizeof(reply)) {
       if ((n = write(config->s, &p[nwrote], sizeof(reply) - nwrote)) == -1) {
-        if (errno == EINTR || errno == EPIPE) {
-          continue;
-        } else {
-          mlog(LOG_ERR, "%s: plugin write (fd=%d): %s", __func__, config->s,
-               strerror(errno));
-          RETURN;
-        }
+        mlog(LOG_ERR, "%s: plugin write (fd=%d): %s", __func__, config->s,
+             strerror(errno));
+        RETURN;
       }
       nwrote += n;
     } /* while (writing reply) */

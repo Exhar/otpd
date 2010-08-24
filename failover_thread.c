@@ -177,7 +177,7 @@ something:
       int rc;
 
       if (send(s, c.msg, xlen, 0) == -1) {
-        if (errno == EINTR || errno == EWOULDBLOCK) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
           /* NOPAUSE */
           /* NORESET */
           continue;
@@ -190,7 +190,7 @@ something:
       }
       rc = poll(&pfd, 1, 200 /* .2s */);
       if (rc == -1) {
-        if (errno == EINTR || errno == EAGAIN) {
+        if (errno == EAGAIN) {
           /* NOPAUSE */
           /* NORESET */
           continue;
@@ -207,7 +207,7 @@ something:
 
       /* data is available */
       if ((rlen = recv(s, p.msg, sizeof(p.msg), 0)) == -1) {
-        if (errno == EINTR || errno == EWOULDBLOCK) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
           /* NOPAUSE */
           RESET_FAILBACK;
           continue;

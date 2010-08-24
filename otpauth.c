@@ -258,7 +258,7 @@ otp_write(int fd, const char *buf, size_t len)
 
   while (nleft) {
     if ((nwrote = write(fd, &buf[len - nleft], nleft)) == -1) {
-      if (errno == EINTR || errno == EPIPE) {
+      if (errno == EINTR) {
         continue;
       } else {
         fprintf(stderr, "otpauth: write: %s\n", strerror(errno));

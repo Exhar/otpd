@@ -333,7 +333,7 @@ gsmd(const config_t *config, const user_t *user, state_t *state,
     int rc;
 
     if (send(state->l.g.s, cp, xlen, 0) == -1) {
-      if (errno == EINTR || errno == EWOULDBLOCK) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
         UPDATE_TIMEOUT;
         continue;
       } else {
@@ -344,7 +344,7 @@ gsmd(const config_t *config, const user_t *user, state_t *state,
 
     rc = poll(&pfd, 1, 200 /* .2s */);
     if (rc == -1) {
-      if (errno == EINTR || errno == EAGAIN) {
+      if (errno == EAGAIN) {
         UPDATE_TIMEOUT;
         continue;
       } else {
@@ -362,7 +362,7 @@ gsmd(const config_t *config, const user_t *user, state_t *state,
 
     /* data is available */
     if ((rlen = recv(state->l.g.s, pp, GSM_ULTRA_MSG_LEN, 0)) == -1) {
-      if (errno == EINTR || errno == EWOULDBLOCK) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
         UPDATE_TIMEOUT;
         continue;
       } else {
@@ -671,7 +671,7 @@ state_read(char *buf, size_t len, const char *statedir, const char *username)
   nread = 0;
   while ((r = read(fd, &buf[nread], len-nread)) != 0) {
     if (r == -1) {
-      if (errno == EINTR || errno == EAGAIN)
+      if (errno == EAGAIN)
         continue;
       mlog(LOG_ERR, "%s: unable to read state file %s: %s",
            __func__, filename, strerror(errno));

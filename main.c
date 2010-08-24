@@ -55,16 +55,21 @@ char *progname = "otpd";
 
 /* initialize signal handling */
 static void
-sig_init()
+sig_init(void)
 {
   sigset_t set;
   struct sigaction sa;
 
   /* block all signals */
   (void) sigfillset(&set);
+  /* except the sync signals that result in undefined action if blocked */
+  (void) sigdelset(&set, SIGFPE);
+  (void) sigdelset(&set, SIGILL);
+  (void) sigdelset(&set, SIGSEGV);
+  (void) sigdelset(&set, SIGBUS);
   (void) pthread_sigmask(SIG_BLOCK, &set, NULL);
 
-  /* ignore SIGPIPE */
+  /* ignore SIGPIPE; we want to receive EPIPE instead */
   sa.sa_handler = SIG_IGN;
   sa.sa_flags = 0;
   (void) sigemptyset(&sa.sa_mask);	/* not really needed */
@@ -257,24 +262,16 @@ main(int argc, char *argv[])
   }
 #endif /* USE_SOCKET */
 
-  /* do nothing */
-  for (;;) {
+  /* catch any signals and exit. TODO: terminate all threads cleanly */
+  {
     sigset_t set;
-    int sig;
 
     /* unblock all signals */
     (void) sigemptyset(&set);
     (void) pthread_sigmask(SIG_SETMASK, &set, NULL);
 
-    /* small race: could get a signal between sigmask() and sigwait() */
-    (void) sigfillset(&set);
-    /* wait for any signal that would cause an exit */
-    (void) sigwait(&set, &sig);	
-
-    mlog(LOG_NOTICE, "%s %s stopping on signal %d",
-         basename(progname), VERSION, sig);
-    /* exit with correct code and possibly coredump */
-    (void) raise(sig);
+    for (;;)
+      (void) pause();
   }
 
   /*NOTREACHED*/
