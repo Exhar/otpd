@@ -104,6 +104,7 @@ $(objs_with_headers): %.o: %.h
 otp.o state.o user.o: cardops.h
 site.o state.o work_thread.o x99.o: otp.h
 state.o: gsm.h
+failover_thread.o helix.o state.o: bitmanip.h
 $(CARDOPS_SRCS): cardops.h otp.h
 
 %.o: %.c $(common_headers)
