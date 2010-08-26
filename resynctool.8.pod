@@ -41,9 +41,7 @@ to set it very large as it creates more work for the server, and therefore
 with "severe" sync problems the user may become effectively locked out.
 
 When using LDAP with B<otpd>, a user-specific I<rwindow_size> setting
-can be made, which allows the user to self-resync.  The TRI-D Systems
-Professional Edition software also comes with a web application that
-administrators or users can use to make this job easy.
+can be made, which allows the user to self-resync.
 
 When using files with B<otpd>, user-specific settings are not available,
 and therefore B<resynctool> is provided.  Some sites may want to use it
@@ -56,10 +54,10 @@ will resync the user.  Suggested usage (wrap this in a script):
   resynctool -u USER -k ... -1 123456 -2 123456 >/dev/null &&
   resynctool -u USER -k ... -1 123456 -2 123456 >/etc/otpstate/USER
 
-B<resynctool> is designed to work with TRI-D event-based HOTP tokens,
-however it will work with any event-based HOTP token which uses a counter
-that increments by one for each subsequent use of the token.  (RFC 4226
-does not specify how the counter should be derived.)
+B<resynctool> is designed to work with any event-based HOTP token which
+uses a counter that increments by one for each subsequent use of the token.
+Because RFC 4226 does not specify how the counter should be derived,
+B<resynctool> may not work with all tokens.
 
 =head1 OPTIONS
 
