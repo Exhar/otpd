@@ -234,9 +234,7 @@ main(int argc, char *argv[])
       if (!strcmp((char *) response, pass2)) {
         char s[17];
 
-        /* token is now at the subsequent counter value */
-        c2c(++counter, challenge);
-        /* print the new state */
+        /* print the new state containing the last used challenge */
         (void) printf("5:%s:%s:::0:0:0:\n", username, x2a(s, challenge));
         exit(0);
 
