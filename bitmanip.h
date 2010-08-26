@@ -61,12 +61,18 @@ rol(uint32_t word, uint32_t n)
 #define rol(w,x) (((w) << (x))|((w) >> (32 - (x))))
 #endif /* else !__GNUC__ */
 
+/* avoid strict aliasing */
+typedef uint32_t
+#if defined(__GNUC__)
+__attribute__ ((may_alias))
+#endif
+uint32_t_a;
+
 /*
  * little-endian to host-endian byte manip macros
- * (uint32 alignment assumed unless marked otherwise)
+ * (uint32 alignment assumed)
  *
  * LEUCHAR2HEUINT32:    little-endian uchar to host-endian uint32
- * LEUCHAR2HEUINT32UA:  little-endian uchar to host-endian uint32 unaligned
  * LEUCHAR2HEUINT32ZE:  little-endian uchar to host-endian uint32 w/ extension
  * HEUINT32TOLEUCHAR:   host-endian uint32 to little-endian uchar
  * HEUINT32P2LEUCHAR:   host-endian uint32 (partial) to little-endian uchar
@@ -75,24 +81,7 @@ rol(uint32_t word, uint32_t n)
  */
 #ifdef _LITTLE_ENDIAN
 
-#define LEUCHAR2HEUINT32(w, cp) w = *((uint32_t *) cp)
-
-/*
- * memcpy() might be better (unlikely)
- * since this is only a LE problem (BE already has to do this
- * even for aligned cases), and that means x86, just doing an unaligned
- * access might be better (unlikely)
- * http://article.gmane.org/gmane.linux.kernel/606404
- */
-#define LEUCHAR2HEUINT32UA(w, cp) do			\
-  {							\
-    unsigned char *ucwp = (unsigned char *) &w;		\
-    unsigned char *uccp = (unsigned char *) cp;		\
-    ucwp[0] = uccp[0];					\
-    ucwp[1] = uccp[1];					\
-    ucwp[2] = uccp[2];					\
-    ucwp[3] = uccp[3];					\
-  } while (0)
+#define LEUCHAR2HEUINT32(w, cp) w = *(uint32_t_a *) cp
 
 #define LEUCHAR2HEUINT32ZE(w, cp, n) do			\
   {							\
@@ -104,16 +93,7 @@ rol(uint32_t word, uint32_t n)
       ucwp[li] = uccp[li];       			\
   } while (0)
 
-//#define HEUINT32TOLEUCHAR(cp, w) memcpy (cp, &w, 4)
-#define HEUINT32TOLEUCHAR(cp, w) memcpy ((char *)(cp), (char *)&(w), 4)
-
-/*
-#define HEUINT32TOLEUCHAR(cp, w) do			\
-  {							\
-    uint32_t *uicp = (uint32_t *) cp;			\
-    *uicp = w;						\
-  } while (0)
-*/
+#define HEUINT32TOLEUCHAR(cp, w) *(uint32_t_a *) cp = w;
 
 #define HEUINT32P2LEUCHAR(cp, w, n) do			\
   {							\
@@ -152,8 +132,6 @@ rol(uint32_t word, uint32_t n)
     ucwp[2] = uccp[1];					\
     ucwp[3] = uccp[0];					\
   } while (0)
-
-#define LEUCHAR2HEUINT32UA(w, cp) LEUCHAR2HEUINT32(w, cp)
 
 #define LEUCHAR2HEUINT32ZE(w, cp, n) do			\
   {							\

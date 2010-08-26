@@ -108,7 +108,6 @@ failover_thread(void *arg)
   /* populate static part of nonce */
   HEUINT32TOLEUCHAR(&c.msg[0], streamid[0]);		/* random constant */
   HEUINT32TOLEUCHAR(&c.msg[4], streamid[1]);		/* random constant */
-
   c.msg[8] = len & 0xff;				/* low-order len   */
   c.msg[9] = (len & 0xff00) >> 8;			/* high-order len  */
   c.msg[10] = cmsg[0];					/* request type    */
@@ -160,10 +159,7 @@ failover_thread(void *arg)
 
     /* populate dynamic part (seqno) of nonce */
     seq = nonce32();
-
-    //HEUINT32TOLEUCHAR(&c.msg[12], seq);
-    (void) memcpy( (unsigned char *) &c.msg[12], (unsigned char *) &seq, 4 );
-
+    HEUINT32TOLEUCHAR(&c.msg[12], seq);
     helix_nonce(gsmd->scontext, &dcontext, c.msg);
 
     /* encrypt message */
@@ -268,9 +264,7 @@ something:
         {
           uint32_t rseq;
 
-          //LEUCHAR2HEUINT32(rseq, &p.msg[12]);
-          (void) memcpy( (unsigned char *) &rseq, (unsigned char *) &p.msg[12], 4 );
-
+          LEUCHAR2HEUINT32(rseq, &p.msg[12]);
           if (rseq != seq) {
             /* could be a retrans, try again */
             mlog(LOG_INFO, "%s(%s): bad msg format (seqno)", __func__, name);
