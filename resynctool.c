@@ -222,11 +222,11 @@ main(int argc, char *argv[])
     hotp(challenge, keyblock, keylen, response);
    
     if (debug == 1)
-       (void) printf("%llu: %s\n", (long long unsigned int) counter, response);
+       (void) printf("%" PRIu64 ": %s\n", counter, response);
 
     if (!strcmp((char *) response, pass1)) {
       if (debug)
-        (void) printf("matched %s at counter=%llu\n", pass1, (long long unsigned int) counter);
+        (void) printf("matched %s at counter=%" PRIu64 "\n", pass1, counter);
 
       /* matched first pass, look for 2nd */
       c2c(++counter, challenge);
@@ -242,8 +242,8 @@ main(int argc, char *argv[])
 
       } else if (debug) {
         (void) fprintf(stderr,
-                       "mismatch for counter=%llu, wanted: %s got: %s\n",
-                       (long long unsigned int) counter, pass2, response);
+                       "mismatch for counter=%" PRIu64" , wanted: %s got: %s\n",
+                       counter, pass2, response);
         (void) fprintf(stderr, "continuing search\n");
       } /* else (pass2 does not match) */
     } /* if (pass1 matches) */
