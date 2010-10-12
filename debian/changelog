@@ -1,72 +1,11 @@
-otpd (3.2.0-1) dapper; urgency=low
+otpd (3.2.5ubuntu1) lucid; urgency=low
 
-  * First release of the fork
+  * modified debian control files
 
- -- Giuseppe Paterno' <gpaterno@gpaterno.com> Tue Nov 17 11:18:25 CET 2009
+ -- Giuseppe Paterno' <gpaterno@gpaterno.com>  Tue, 12 Oct 2010 08:29:50 +0200
 
-otpd (3.1.0-1) dapper; urgency=low
+otpd (3.2.5) lucid; urgency=low
 
-  * New release
+  * Initial debian/ubuntu release. 
 
- -- Frank Cusack <frank@tri-dsystems.com>  Mon Feb 11 2008 16:55:00 -0700
-
-otpd (3.0.0-1) dapper; urgency=low
-
-  * New release
-
- -- Frank Cusack <frank@tri-dsystems.com>  Thu Jan 31 2008 00:30:04 -0700
-
-otpd (2.5.2-1) dapper; urgency=low
-
-  * New release
-
- -- Frank Cusack <frank@tri-dsystems.com>  Wed, 12 Dec 2007 15:46:25 -0700
-
-otpd (2.5.1-1) dapper; urgency=low
-
-  * New release
-
- -- Frank Cusack <frank@tri-dsystems.com>  Wed, 12 Dec 2007 14:20:02 -0700
-
-otpd (2.5.0-1) dapper; urgency=low
-
-  * New release
-
- -- Frank Cusack <frank@tri-dsystems.com>  Wed, 12 Dec 2007 10:42:51 -0700
-
-otpd (2.4.0-1) dapper; urgency=low
-
-  * New release
-
- -- Frank Cusack <frank@tri-dsystems.com>  Sun, 11 Nov 2007 10:33:20 -0700
-
-otpd (2.3.0-1) dapper; urgency=low
-
-  * New release
-
- -- Frank Cusack <frank@tri-dsystems.com>  Tue, 2 Oct 2007 18:22:52 -0700
-
-otpd (2.2.1-1) dapper; urgency=low
-
-  * New release
-
- -- Frank Cusack <frank@tri-dsystems.com>  Thu, 12 Jul 2007 20:51:49 -0700
-
-otpd (2.2.0-1) dapper; urgency=low
-
-  * New release
-
- -- Frank Cusack <frank@tri-dsystems.com>  Tue, 22 May 2007 00:30:27 -0700
-
-otpd (2.1.8-1) dapper; urgency=low
-
-  * New release
-
- -- Robert Flemming <flemming@tri-dsystems.com>  Thu, 2 May 2007 10:39:16 -0700
-
-otpd (2.1.7-1) dapper; urgency=low
-
-  * Initial release
-
- -- Robert Flemming <flemming@tri-dsystems.com>  Tue, 24 Apr 2007 12:56:24 -0700
-
+ -- Giuseppe Paterno' <gpaterno@gpaterno.com>  Tue, 12 Oct 2010 08:15:35 +0200

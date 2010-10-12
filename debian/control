@@ -1,16 +1,15 @@
 Source: otpd
-Section: unknown
+Section: net
 Priority: optional
 Maintainer: Giuseppe Paterno' <gpaterno@gpaterno.com>
 Build-Depends: debhelper (>= 4.0.0), libssl-dev, libldap-dev
-Standards-Version: 3.6.2
+Standards-Version: 3.6.2-1
 
 Package: otpd
 Architecture: i386
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: OTP token authentication daemon
-OTPD is an authentication server capable of validating OTP tokens
-using the HOTP standard (RFC 4226).
-This software can be used in conjunction with a RADIUS server,
-such as FreeRADIUS, to authenticate users.
-
+ OTPD is an authentication server capable of validating OTP tokens
+ using the HOTP standard (RFC 4226).
+ This software can be used in conjunction with a RADIUS server,
+ such as FreeRADIUS, to authenticate users.
