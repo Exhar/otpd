@@ -1,7 +1,7 @@
 Source: otpd
 Section: unknown
 Priority: optional
-Maintainer: Giuseppe Paterno' <gpaterno@redhat.com>
+Maintainer: Giuseppe Paterno' <gpaterno@gpaterno.com>
 Build-Depends: debhelper (>= 4.0.0), libssl-dev, libldap-dev
 Standards-Version: 3.6.2
 

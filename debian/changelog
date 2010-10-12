@@ -2,7 +2,7 @@ otpd (3.2.0-1) dapper; urgency=low
 
   * First release of the fork
 
- -- Giuseppe Paterno' <gpaterno@redhat.com> Tue Nov 17 11:18:25 CET 2009
+ -- Giuseppe Paterno' <gpaterno@gpaterno.com> Tue Nov 17 11:18:25 CET 2009
 
 otpd (3.1.0-1) dapper; urgency=low
 
