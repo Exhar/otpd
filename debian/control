@@ -2,11 +2,11 @@ Source: otpd
 Section: net
 Priority: optional
 Maintainer: Giuseppe Paterno' <gpaterno@gpaterno.com>
-Build-Depends: debhelper (>= 4.0.0), libssl-dev, libldap2-dev, bison, flex
+Build-Depends: debhelper (>= 4.0.0), libssl-dev, libldap2-dev, bison, flex, autoconf
 Standards-Version: 3.6.2-1
 
 Package: otpd
-Architecture: i386
+Architecture: i386 amd64
 Depends: ${shlibs:Depends}, ${misc:Depends},
 Description: OTP token authentication daemon
  OTPD is an authentication server capable of validating OTP tokens

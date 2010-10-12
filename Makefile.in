@@ -91,10 +91,10 @@ install-resynctool: resynctool
 	$(INSTALL_DATA) resynctool.8 $(DESTDIR)$(mandir)/man8/resynctool.8
 
 distclean: clean
-	rm -rf Makefile config.log config.status autom4te.cache redhat/otpd.init solaris/manifest
+	rm -rf Makefile config.log config.status autom4te.cache redhat/otpd.init solaris/manifest configure
 
 clean:
-	rm -f otpd $(OBJS) otpauth otpauth.o resynctool resynctool.o $(patsubst %.c,%.o,$(CARDOPS_SRCS))
+	rm -f otpd $(OBJS) otpauth otpauth.o resynctool resynctool.o $(patsubst %.c,%.o,$(CARDOPS_SRCS)) $(MAN)
 
 common_headers = extern.h
 specific_headers = $(filter-out $(common_headers),$(wildcard *.h cardops/*.h userops/*.h))
