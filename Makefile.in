@@ -47,7 +47,7 @@ CARDOPS_OBJS := $(patsubst %.c,%.o,$(CARDOPS_SRCS))
 CARDOPS_XOBJS = $(filter-out $(CARDOPS_OBJS), $(wildcard cardops/*.o))
 CARDOPS_OBJS += $(CARDOPS_XOBJS)
 
-all: otpd otpauth resynctool init-scripts
+all: otpd otpauth resynctool init-scripts $(MAN)
 
 otpd: $(OBJS) $(CARDOPS_OBJS)
 	$(CC) -o $@ $(LDFLAGS) $^ $(LDAP_LIBS) $(LIBS)

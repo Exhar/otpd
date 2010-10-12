@@ -1,3 +1,9 @@
+otpd (3.2.5ubuntu2) lucid; urgency=low
+
+  * Rules add
+
+ -- Giuseppe Paterno' <gpaterno@gpaterno.com>  Tue, 12 Oct 2010 10:52:41 +0200
+
 otpd (3.2.5ubuntu1) lucid; urgency=low
 
   * modified debian control files
