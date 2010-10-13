@@ -1,5 +1,5 @@
 # configure.ac
-AC_INIT(otpd, 3.2.6, gpaterno@redhat.com)
+AC_INIT(otpd, 3.2.6, gpaterno@gpaterno.com)
 
 AC_PREREQ([2.59])
 AC_COPYRIGHT([Copyright 2005-2008 TRI-D Systems, Inc. - Copyright 2009 Giuseppe Paterno'])
