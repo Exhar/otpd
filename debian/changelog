@@ -1,8 +1,9 @@
-otpd (3.2.5ubuntu3) lucid; urgency=low
+otpd (3.2.7) lucid; urgency=low
 
-  *  updates on packaging
+  * Added TOTP and Feitian c200 support
+  * Fixed #5
 
- -- Giuseppe Paterno' <gpaterno@gpaterno.com>  Wed, 13 Oct 2010 03:22:14 +0200
+ -- gpaterno <gpaterno@debuild>  Fri, 26 Nov 2010 17:28:19 +0100
 
 otpd (3.2.5ubuntu2) lucid; urgency=low
 
