@@ -6,7 +6,7 @@ AC_COPYRIGHT([Copyright 2005-2008 TRI-D Systems, Inc. - Copyright 2009-2010 Gius
 AC_REVISION([$Revision$])
 
 AC_CONFIG_SRCDIR([main.c])
-PACKAGE_DATE="2008-02-11"
+PACKAGE_DATE="2010-11-26"
 
 # 64-bit support (to append to --with lib paths)
 AC_ARG_WITH(lib64,
