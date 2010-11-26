@@ -1,8 +1,8 @@
 # configure.ac
-AC_INIT(otpd, 3.2.6, gpaterno@gpaterno.com)
+AC_INIT(otpd, 3.2.7, gpaterno@gpaterno.com)
 
 AC_PREREQ([2.59])
-AC_COPYRIGHT([Copyright 2005-2008 TRI-D Systems, Inc. - Copyright 2009 Giuseppe Paterno'])
+AC_COPYRIGHT([Copyright 2005-2008 TRI-D Systems, Inc. - Copyright 2009-2010 Giuseppe Paterno'])
 AC_REVISION([$Revision$])
 
 AC_CONFIG_SRCDIR([main.c])

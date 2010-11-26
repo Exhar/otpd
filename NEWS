@@ -1,3 +1,7 @@
+otpd-3.2.7: 2010/11/26
+  - Addedd TOTP algorithm
+  - Addedd support for the Feitian c200, which seems to have a small TOTP difference 
+ 
 otpd-3.1.0: 2008/02/11
   - gsmd: add support for gsmd backup server and failover
   - gsmd: fix request type field in gsmd message
