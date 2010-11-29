@@ -150,7 +150,7 @@ c200_response(const user_t *user, state_t *state,
   t_rounding = 60 - (t % 60);
   iv =  ((int) (t + t_rounding)) / TIME_STEP;
 
-  mlog(LOG_DEBUG1, "c200: iv is set to %lu", (long) iv);
+  mlog(LOG_DEBUG1, "c200: iv is set to %llu", iv);
 
   c2c(iv, mychallenge);
   

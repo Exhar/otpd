@@ -148,7 +148,7 @@ totp_response(const user_t *user, state_t *state,
   t = time(NULL);
   iv =  (int) t / TIME_STEP;
 
-  mlog(LOG_DEBUG1, "totp: iv is set to %lu", (long) iv);
+  mlog(LOG_DEBUG1, "totp: iv is set to %llu", iv);
 
   c2c(iv, mychallenge);
   
