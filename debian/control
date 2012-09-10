@@ -1,8 +1,8 @@
 Source: otpd
 Section: net
 Priority: optional
-Maintainer: Giuseppe Paterno' <gpaterno@gpaterno.com>
-Build-Depends: debhelper (>= 4.0.0), libssl-dev, libldap2-dev, bison, flex, autoconf
+Maintainer: Roy van Baekel <roy@byte.nl>
+Build-Depends: debhelper (>= 4.0.0), quilt, libssl-dev, libldap2-dev, bison, flex, autoconf
 Standards-Version: 3.6.2-1
 
 Package: otpd
