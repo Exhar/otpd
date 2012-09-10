@@ -28,8 +28,7 @@ configure:
 
 build: build-stamp
 
-build-stamp: $(QUILT_STAMPFN)
-       	config.status
+build-stamp: $(QUILT_STAMPFN) config.status
 	dh_testdir
 
 	# Add here commands to compile the package.
