@@ -28,8 +28,8 @@ configure:
 
 build: build-stamp
 
-build-stamp:  config.status
-	$(QUILT_STAMPFN)
+build-stamp: $(QUILT_STAMPFN)
+       	config.status
 	dh_testdir
 
 	# Add here commands to compile the package.
@@ -37,11 +37,14 @@ build-stamp:  config.status
 	#docbook-to-man debian/otpd.sgml > otpd.1
 
 	touch build-stamp
+stamp-patched:
+	touch debian/stamp-patched
 
 clean: unpatch
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp 
+	rm -rf debian/stamp-patched
 
 	# Add here commands to clean up after the build process.
 	-$(MAKE) distclean
