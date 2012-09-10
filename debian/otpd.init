@@ -1,5 +1,16 @@
 #! /bin/sh
 
+### BEGIN INIT INFO
+# Provides:          otpd
+# Required-Start:    $remote_fs $network $syslog
+# Should-Start:      $time mysql slapd postgresql samba krb5-kdc
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: OTP Daemon
+# Description:       One time password Daemon
+### END INIT INFO
+
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/sbin/otpd
 NAME=otpd
