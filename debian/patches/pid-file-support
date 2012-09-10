@@ -1,7 +1,7 @@
-Index: custom/otp/extern.h
+Index: otp/extern.h
 ===================================================================
---- custom.orig/otp/extern.h	2012-09-10 21:36:55.173115123 +0200
-+++ custom/otp/extern.h	2012-09-10 21:44:09.175827798 +0200
+--- otp.orig/extern.h	2012-09-10 23:17:34.066227267 +0200
++++ otp/extern.h	2012-09-10 23:17:53.145405999 +0200
 @@ -35,6 +35,9 @@
  /* plugin rendezvous point */
  #define OTPD_PLUGIN_RP "/var/run/otpd/socket"
@@ -12,15 +12,15 @@ Index: custom/otp/extern.h
  /* statedir */
  #define OTPD_STATEDIR "/etc/otpstate"
  
-Index: custom/otp/main.c
+Index: otp/main.c
 ===================================================================
---- custom.orig/otp/main.c	2012-09-10 21:36:42.145273195 +0200
-+++ custom/otp/main.c	2012-09-10 21:45:23.339261470 +0200
+--- otp.orig/main.c	2012-09-10 23:14:29.488618787 +0200
++++ otp/main.c	2012-09-10 23:17:30.064956223 +0200
 @@ -47,6 +47,7 @@
  pthread_attr_t attr_detached;		/* create all threads detached */
  
  char *opt_c;				/* config file      */
-+char *opt_pid;				/* PID file         */
++char *opt_pid;                          /* PID file         */
  char *opt_u;				/* user             */
  char *opt_p;				/* plugin rp        */
  char *opt_d;				/* log_level        */
@@ -32,24 +32,24 @@ Index: custom/otp/main.c
    int i;
  #ifndef HAVE_CLOSEFROM
    struct rlimit rl;
-@@ -151,6 +153,17 @@
+@@ -150,6 +152,17 @@
+     mlog(LOG_CRIT, "%s: unexpected fd's %d %d %d", __func__, fd0, fd1, fd2);
      exit(1);
    }
- 
-+  /* record our pid */
-+  if (!opt_pid)
-+    opt_pid = OTPD_PIDFILE;
-+  if ((pidfd = fopen(opt_pid,"w")) != (FILE *) NULL) {
-+     fprintf(pidfd, "%d\n", getpid());
-+     fclose(pidfd);
-+  } else {
-+     mlog(LOG_CRIT, "%s: could not write PID file %s" , __func__, opt_pid);
-+     exit(1);
-+  }
++   /* record our pid */
++   if (!opt_pid)
++     opt_pid = OTPD_PIDFILE;
 +
++  if ((pidfd = fopen(opt_pid,"w")) != (FILE *) NULL) {
++    fprintf(pidfd, "%d\n", getpid());
++    fclose(pidfd);
++  } else {
++    mlog(LOG_CRIT, "%s: could not write PID file %s" , __func__, opt_pid);
++    exit(1);
++  }
+ 
    /* initialize syslog */
    mopenlog(basename(progname), LOG_PID|LOG_NDELAY);
- }
 @@ -166,6 +179,7 @@
  "       -c <file>    use config file <file>\n"
  "       -u <user>    run as user <user> \n"
@@ -69,7 +69,7 @@ Index: custom/otp/main.c
          opt_c = optarg;
          break;
 -
-+      case 'P':		/* PID file */
++      case 'P':               /* PID file */
 +        opt_pid = optarg;
 +        break;
        case 'd':		/* debug */
@@ -79,10 +79,10 @@ Index: custom/otp/main.c
      (void) sigemptyset(&set);
      (void) pthread_sigmask(SIG_SETMASK, &set, NULL);
  
-+     /* unlink our PID file */
-+     unlink(OTPD_PIDFILE);
++    /* unlink our PID file */
++    unlink(OTPD_PIDFILE);
 +
-+     /* wait for all threads to shut down */
++    /* wait for all threads to shut down */
      for (;;)
        (void) pause();
    }

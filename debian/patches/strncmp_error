@@ -1,7 +1,7 @@
-Index: custom/otp/userops/ldap.c
+Index: otp/userops/ldap.c
 ===================================================================
---- custom.orig/otp/userops/ldap.c	2012-09-10 21:48:36.178656544 +0200
-+++ custom/otp/userops/ldap.c	2012-09-10 21:48:59.794200507 +0200
+--- otp.orig/userops/ldap.c	2012-09-10 23:11:19.678550131 +0200
++++ otp/userops/ldap.c	2012-09-10 23:11:36.228889440 +0200
 @@ -321,7 +321,7 @@
      }
  
