@@ -1,3 +1,13 @@
+otpd (3.2.7+byte1) lucid; urgency=low
+
+  * Non-maintainer upload.
+  * Applied patches
+  * * LDAP User not found
+  * * Write PID file
+  * * strncmp error fixed
+
+ -- Roy van Baekel <roy@byte.nl>  Mon, 10 Sep 2012 22:29:24 +0200
+
 otpd (3.2.7) lucid; urgency=low
 
   * Added TOTP and Feitian c200 support
