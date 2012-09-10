@@ -1,0 +1,13 @@
+Index: custom/otp/userops/ldap.c
+===================================================================
+--- custom.orig/otp/userops/ldap.c	2012-09-10 21:48:36.178656544 +0200
++++ custom/otp/userops/ldap.c	2012-09-10 21:48:59.794200507 +0200
+@@ -321,7 +321,7 @@
+     }
+ 
+     if (p[0] == '{') {
+-      if (strncmp(p, "{MD5}", 5)) {
++      if (strncmp(p, "{MD5}", 5)==0) {
+         p += 5;
+         if (strlen(p) != 32 || a2nx(p, h, 16) != 16) {
+           mlog(LOG_ERR, "%s: otpTmpStaticPassword for [%s] invalid",
