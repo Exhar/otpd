@@ -30,6 +30,7 @@ case "$1" in
 	echo -n "Starting $DESC: "
 	start-stop-daemon --start --quiet --exec $DAEMON -- $DAEMON_OPTS
 	echo "$NAME."
+	chmod 777 /var/run/otpd/socket
 	;;
   stop)
 	echo -n "Stopping $DESC: "
@@ -42,6 +43,7 @@ case "$1" in
 	sleep 1
 	start-stop-daemon --start --quiet --exec $DAEMON -- $DAEMON_OPTS
 	echo "$NAME."
+	chmod 777 /var/run/otpd/socket
 	;;
   *)
 	N=/etc/init.d/$NAME
